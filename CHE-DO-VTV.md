@@ -1,8 +1,8 @@
-# Bản tuỳ chỉnh: Home chỉ còn Live TV + YouTube Music
+# Bản tuỳ chỉnh: Home chỉ còn 3 icon to: TV trực tiếp, YouTube, YouTube Music
 
 Mặc định BẬT. Sau khi bấm "Cài Home sạch" hoặc "Áp dụng lên tivi":
 
-- Home sạch chỉ còn dock gồm **Live TV** (truyền hình cable qua đầu thu của tivi) và **YouTube Music**. App khác vào Thư viện (nút Thư viện đã ẩn).
+- Home sạch chỉ còn 3 icon to, tên hiện dưới icon: **TV trực tiếp** (Live TV, cable qua đầu thu của tivi), **YouTube** và **YouTube Music**. Không tự lấp ô trống bằng app khác, không còn hàng app bên dưới, không dải nền dock, không tên dock phía trên. App khác vào Thư viện (nút Thư viện đã ẩn).
 - Ẩn lời chào, âm lịch, thời tiết, nút Đang phát, nút màn chờ, hẹn giờ tắt, nút Wi-Fi / Nguồn vào / Thư viện / sắp xếp.
   Giữ bánh răng Cài đặt để vào Wi-Fi và cài đặt tivi. Đồng hồ launcher không có khoá ẩn nên vẫn hiện.
 - **Bật tivi mở Live TV ở kênh xem gần nhất** (`boot_to_live_tv` của launcher + `live_tv_package`).

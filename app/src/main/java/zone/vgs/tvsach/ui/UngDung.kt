@@ -1325,9 +1325,9 @@ private fun TheTuyChinh(vm: PhienLamViec) {
                 ChonChip(chu, vm.doiHang == v) { vm.doiHang = v }
             }
         }
-        Hang(t("Chỉ Live TV + YouTube Music", "Live TV + YouTube Music only"),
-            t("Home chỉ còn icon Live TV (truyền hình cable qua đầu thu của tivi) và YouTube Music, ẩn lời chào, âm lịch, nút Wi-Fi / Nguồn vào / Thư viện. Bật tivi là mở Live TV ở kênh xem gần nhất. Bấm Áp dụng lên tivi để có hiệu lực",
-                "Home shows only the Live TV icon (cable via the TV's tuner) and YouTube Music, hides the greeting, lunar date and the Wi-Fi / Inputs / Library buttons. Power-on opens Live TV on the last channel. Press Apply to the TV to take effect"),
+        Hang(t("Chỉ 3 icon: TV trực tiếp, YouTube, YouTube Music", "Only 3 icons: Live TV, YouTube, YouTube Music"),
+            t("Home chỉ còn 3 icon to: TV trực tiếp (cable qua đầu thu của tivi), YouTube và YouTube Music, ẩn lời chào, âm lịch, nút Wi-Fi / Nguồn vào / Thư viện. Bật tivi là mở Live TV ở kênh xem gần nhất. Bấm Áp dụng lên tivi để có hiệu lực",
+                "Home shows only 3 big icons: Live TV (cable via the TV's tuner), YouTube and YouTube Music, hides the greeting, lunar date and the Wi-Fi / Inputs / Library buttons. Power-on opens Live TV on the last channel. Press Apply to the TV to take effect"),
             vm.cheDoVtv) { vm.datCheDoVtv(it) }
         Hang(t("Mở một app khi bật tivi", "Open an app at power-on"), t("Bật, Áp dụng lên tivi, rồi bấm nút bên dưới để chọn app ngay trên tivi. Chọn được cả ô kênh (📺 VTV1…) để bật tivi là vào thẳng kênh", "Turn on, apply to the TV, then use the button below to pick the app on the TV. Channel tiles (📺 VTV1…) work too, to power on straight into a channel"), vm.moKhiBat) { vm.moKhiBat = it }
         Hang(t("Luôn mở Home sạch khi bật tivi", "Always open the clean Home at power-on"),

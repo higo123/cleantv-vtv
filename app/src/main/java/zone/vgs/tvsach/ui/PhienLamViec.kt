@@ -247,6 +247,7 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
     // ---- Chế độ "Home chỉ còn Live TV + YouTube Music" (bản tuỳ chỉnh 06/11/2026) ----
     var cheDoVtv by mutableStateOf(zone.vgs.tvsach.dulieu.CheDoVtv.MAC_DINH)
     private val goiYtMusic get() = zone.vgs.tvsach.dulieu.CheDoVtv.GOI_YT_MUSIC.firstOrNull { trangThai?.caiDat?.contains(it) == true }
+    private val goiYoutube get() = zone.vgs.tvsach.dulieu.CheDoVtv.GOI_YOUTUBE.firstOrNull { trangThai?.caiDat?.contains(it) == true }
     /** App Live TV: người dùng đã đặt ở Nâng cao thì lấy cái đó, không thì dò trong danh sách gói hay gặp. */
     private val goiLiveTv get() = nangCao["live_tv_package"]?.takeIf { it.isNotBlank() }
         ?: zone.vgs.tvsach.dulieu.CheDoVtv.GOI_LIVE_TV.firstOrNull { trangThai?.caiDat?.contains(it) == true }
@@ -256,7 +257,7 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
         cheDoVtv = bat
         if (!bat) {
             chiHienDock = false
-            nangCao.remove("boot_to_live_tv")
+            nangCao.remove("boot_to_live_tv"); nangCao.remove("app_labels")
             zone.vgs.tvsach.dulieu.CheDoVtv.AN_NUT.keys.forEach { nangCao.remove(it) }
         }
     }
@@ -272,17 +273,21 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
         kenhChon.clear()
         dock.clear()
         live?.let { dock.add(it) }
+        goiYoutube?.let { dock.add(it) }
         goiYtMusic?.let { dock.add(it) }
+        // Icon to, tên dưới icon, không tên dock phía trên, 3 ô một hàng.
+        iconTo = true; tenDuoiApp = true; tenToTrenDock = false; soCot = 3; motHang = false
         thuVienApp = true; chiHienDock = true; thuVienTrongMenu = true; nutCaiDatThuVien = false
         anLoiChao = true; amLich = false; nutDangPhat = false; nutManCho = false; manChoDong = false
         dongHoKhiYen = 0; hienThongSo = false; nutHenTat = false; thanhPho = null
         moKhiBat = false; moKhiThuc = false; luonVeHome = false
         nangCao.putAll(zone.vgs.tvsach.dulieu.CheDoVtv.AN_NUT)
         nangCao["boot_to_live_tv"] = "true"
-        if (live != null) nangCao["live_tv_package"] = live
+        if (live != null) { nangCao["live_tv_package"] = live; nangCao["app_labels"] = "$live=TV trực tiếp" }
         else ghi(t("Không thấy app Live TV trên tivi: chưa có icon Live TV và bật tivi chưa vào truyền hình. Vào Nâng cao đặt \"App xem truyền hình (Live TV)\" bằng tên gói của tivi rồi Áp dụng lại.",
             "No Live TV app found on the TV: no Live TV icon yet and power-on won't open TV. Set \"Live TV app\" in Advanced to the TV's package name and apply again."))
-        if (goiYtMusic == null) ghi(t("Tivi chưa có YouTube Music: Home chỉ có icon Live TV cho tới khi cài app này.", "YouTube Music isn't installed on the TV: Home only has the Live TV icon until it is."))
+        if (goiYoutube == null) ghi(t("Tivi chưa có YouTube: chưa có icon YouTube trên Home.", "YouTube isn't installed on the TV: no YouTube icon on Home yet."))
+        if (goiYtMusic == null) ghi(t("Tivi chưa có YouTube Music: chưa có icon YouTube Music trên Home.", "YouTube Music isn't installed on the TV: no YouTube Music icon on Home yet."))
     }
 
     /**
