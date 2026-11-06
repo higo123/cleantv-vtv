@@ -16,7 +16,10 @@ object CheDoVtv {
     )
 
     /** false = bỏ icon YouTube, Home chỉ còn TV trực tiếp + YouTube Music (nếu 3 icon vẫn không vừa màn hình). */
-    const val CO_YOUTUBE = true
+    const val CO_YOUTUBE = false
+
+    /** Thành phố thời tiết mặc định (tên trong THANH_PHO) khi người dùng chưa chọn. */
+    const val THANH_PHO = "Hà Nội"
 
     /** Tên hiện trong lời chào trên Home (launcher ghép với câu chào theo giờ). Đổi ở đây hoặc ở ô "Tên chào" trong app. */
     const val TEN_CHAO = "bà Hương"

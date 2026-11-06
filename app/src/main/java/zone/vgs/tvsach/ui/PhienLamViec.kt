@@ -289,7 +289,7 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
         if (live != null) { nangCao["live_tv_package"] = live }
         else ghi(t("Không thấy app Live TV trên tivi: chưa có icon Live TV và bật tivi chưa vào truyền hình. Vào Nâng cao đặt \"App xem truyền hình (Live TV)\" bằng tên gói của tivi rồi Áp dụng lại.",
             "No Live TV app found on the TV: no Live TV icon yet and power-on won't open TV. Set \"Live TV app\" in Advanced to the TV's package name and apply again."))
-        if (thanhPho == null) ghi(t("Chưa chọn thành phố nên Home chưa có thời tiết. Vào Tuỳ chỉnh → Thời tiết chọn thành phố rồi Áp dụng lại.", "No city chosen, so Home has no weather yet. In Customise → Weather pick a city and apply again."))
+        if (thanhPho == null) thanhPho = zone.vgs.tvsach.dulieu.THANH_PHO.firstOrNull { it.ten == zone.vgs.tvsach.dulieu.CheDoVtv.THANH_PHO }
         if (goiYoutube == null) ghi(t("Tivi chưa có YouTube: chưa có icon YouTube trên Home.", "YouTube isn't installed on the TV: no YouTube icon on Home yet."))
         if (goiYtMusic == null) ghi(t("Tivi chưa có YouTube Music: chưa có icon YouTube Music trên Home.", "YouTube Music isn't installed on the TV: no YouTube Music icon on Home yet."))
     }

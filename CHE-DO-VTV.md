@@ -28,3 +28,7 @@ bật lại từ chế độ chờ bằng nút Power có thể không mở Live 
 ## Cỡ icon và thời tiết (v4)
 - Home xếp 5 cột (ô nhỏ vừa phải), 3 icon nằm gọn một hàng. Nếu vẫn không vừa: `CheDoVtv.CO_YOUTUBE = false` bỏ icon YouTube, còn TV trực tiếp + YouTube Music.
 - Thời tiết: chọn thành phố ở Tuỳ chỉnh → Thời tiết trước khi Áp dụng. Chưa chọn thì không có dòng thời tiết (app ghi cảnh báo).
+
+## Bản chốt (v5)
+- Home chỉ còn 2 icon: TV trực tiếp và YouTube Music (`CO_YOUTUBE = false`; đổi `true` để có lại icon YouTube).
+- Thời tiết mặc định Hà Nội (`CheDoVtv.THANH_PHO`), đổi thành phố khác ở Tuỳ chỉnh → Thời tiết.
