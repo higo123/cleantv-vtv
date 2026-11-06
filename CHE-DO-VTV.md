@@ -32,3 +32,9 @@ bật lại từ chế độ chờ bằng nút Power có thể không mở Live 
 ## Bản chốt (v5)
 - Home chỉ còn 2 icon: TV trực tiếp và YouTube Music (`CO_YOUTUBE = false`; đổi `true` để có lại icon YouTube).
 - Thời tiết mặc định Hà Nội (`CheDoVtv.THANH_PHO`), đổi thành phố khác ở Tuỳ chỉnh → Thời tiết.
+
+## Sửa v6: icon Live TV
+Trên tivi Xiaomi "Live TV" là app thật có icon trong Thư viện ứng dụng, nên giờ app đưa thẳng gói của nó lên dock (không dùng ô liên kết nữa).
+Tìm theo thứ tự: gói trong `CheDoVtv.GOI_LIVE_TV` có icon trên tivi (com.mitv.livetv, com.mediatek.wwtv.tvcenter, com.droidlogic.droidlivetv, com.android.tv…),
+rồi gói có icon mà tên khớp `MAU_LIVE_TV`, rồi gói có trong máy. Không thấy thì nhật ký ghi danh sách app có icon để biết tên gói.
+Không còn đọc `live_tv_package` cũ trong config trên tivi (bản trước có thể đã ghi sai).

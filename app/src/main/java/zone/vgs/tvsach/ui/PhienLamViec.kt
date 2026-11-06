@@ -247,18 +247,23 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
     // ---- Chế độ "Home chỉ còn Live TV + YouTube Music" (bản tuỳ chỉnh 06/11/2026) ----
     var cheDoVtv by mutableStateOf(zone.vgs.tvsach.dulieu.CheDoVtv.MAC_DINH)
     private val goiYtMusic get() = zone.vgs.tvsach.dulieu.CheDoVtv.GOI_YT_MUSIC.firstOrNull { trangThai?.caiDat?.contains(it) == true }
-    private val TEN_O_LIVE_TV = "TV trực tiếp"
     private val goiYoutube get() = zone.vgs.tvsach.dulieu.CheDoVtv.GOI_YOUTUBE.firstOrNull { trangThai?.caiDat?.contains(it) == true }
     /** App Live TV: người dùng đã đặt ở Nâng cao thì lấy cái đó, không thì dò trong danh sách gói hay gặp. */
-    private val goiLiveTv get() = nangCao["live_tv_package"]?.takeIf { it.isNotBlank() }
-        ?: zone.vgs.tvsach.dulieu.CheDoVtv.GOI_LIVE_TV.firstOrNull { trangThai?.caiDat?.contains(it) == true }
+    // Không đọc live_tv_package cũ trong config trên tivi: bản trước có thể đã ghi nhầm gói.
+    private val goiLiveTv get() = run {
+        val tt = trangThai ?: return@run null
+        val ds = zone.vgs.tvsach.dulieu.CheDoVtv.GOI_LIVE_TV
+        // Ưu tiên app có icon trên Home (như "Live TV" trong Thư viện ứng dụng), rồi tới gói khớp tên, cuối cùng gói có trong máy.
+        ds.firstOrNull { it in tt.coBieuTuong } ?: tt.coBieuTuong.firstOrNull { zone.vgs.tvsach.dulieu.CheDoVtv.MAU_LIVE_TV.containsMatchIn(it) }
+            ?: ds.firstOrNull { it in tt.caiDat }
+    }
 
     /** Bật / tắt chế độ ở màn Tuỳ chỉnh. Tắt thì trả lại các nút đã ẩn và bỏ "chỉ hiện dock"; phần còn lại người dùng tự chỉnh. */
     fun datCheDoVtv(bat: Boolean) {
         cheDoVtv = bat
         if (!bat) {
             chiHienDock = false
-            nangCao.remove("boot_to_live_tv")
+            nangCao.remove("boot_to_live_tv"); nangCao.remove("app_labels")
             zone.vgs.tvsach.dulieu.CheDoVtv.AN_NUT.keys.forEach { nangCao.remove(it) }
         }
     }
@@ -270,11 +275,11 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
      */
     private suspend fun apCheDoVtv() {
         if (!cheDoVtv) return
-        val live = io { tv.timGoiLiveTv() } ?: goiLiveTv
+        val live = goiLiveTv ?: io { tv.timGoiLiveTv() }?.takeIf { trangThai?.coBieuTuong?.contains(it) == true }
         kenhChon.clear()
         dock.clear()
-        // App Live TV của tivi thường không có icon trên Home, nên đặt một ô riêng mở thẳng kênh truyền hình (link_tiles).
-        live?.let { kenhChon.add(zone.vgs.tvsach.dulieu.OKenh(TEN_O_LIVE_TV, it, "content://android.media.tv/channel", "#1565C0")) }
+        // Live TV là app thật có icon trong Thư viện (Xiaomi): đưa thẳng gói của nó lên đầu dock.
+        live?.let { dock.add(it) }
         if (zone.vgs.tvsach.dulieu.CheDoVtv.CO_YOUTUBE) goiYoutube?.let { dock.add(it) }
         goiYtMusic?.let { dock.add(it) }
         if (tenChao.isBlank()) tenChao = zone.vgs.tvsach.dulieu.CheDoVtv.TEN_CHAO
@@ -286,8 +291,8 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
         moKhiBat = false; moKhiThuc = false; luonVeHome = false
         nangCao.putAll(zone.vgs.tvsach.dulieu.CheDoVtv.AN_NUT)
         nangCao["boot_to_live_tv"] = "true"
-        if (live != null) { nangCao["live_tv_package"] = live }
-        else ghi(t("Không thấy app Live TV trên tivi: chưa có icon Live TV và bật tivi chưa vào truyền hình. Vào Nâng cao đặt \"App xem truyền hình (Live TV)\" bằng tên gói của tivi rồi Áp dụng lại.",
+        if (live != null) { nangCao["live_tv_package"] = live; nangCao["app_labels"] = "$live=TV trực tiếp" }
+        else ghi(t("Các app có icon trên tivi: ${trangThai?.coBieuTuong?.sorted()?.joinToString().orEmpty()}. ", "Apps with a launcher icon on the TV: ${trangThai?.coBieuTuong?.sorted()?.joinToString().orEmpty()}. ") + t("Không thấy app Live TV trên tivi: chưa có icon Live TV và bật tivi chưa vào truyền hình. Vào Nâng cao đặt \"App xem truyền hình (Live TV)\" bằng tên gói của tivi rồi Áp dụng lại.",
             "No Live TV app found on the TV: no Live TV icon yet and power-on won't open TV. Set \"Live TV app\" in Advanced to the TV's package name and apply again."))
         if (thanhPho == null) thanhPho = zone.vgs.tvsach.dulieu.THANH_PHO.firstOrNull { it.ten == zone.vgs.tvsach.dulieu.CheDoVtv.THANH_PHO }
         if (goiYoutube == null) ghi(t("Tivi chưa có YouTube: chưa có icon YouTube trên Home.", "YouTube isn't installed on the TV: no YouTube icon on Home yet."))

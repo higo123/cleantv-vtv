@@ -10,10 +10,15 @@ object CheDoVtv {
 
     /** Gói app Live TV hay gặp trên Android TV (bộ thu DVB-C / DVB-T của tivi), lấy cái đầu tiên có trên tivi. Không thấy thì đặt tay ở Nâng cao: live_tv_package. */
     val GOI_LIVE_TV = listOf(
-        "com.google.android.tv", "com.android.tv", "com.google.android.tvtuner", "com.xiaomi.mitv.tvplayer", "com.mediatek.tv",
+        // Xiaomi: Google TV (MOEU0, MOSR4, MOOR2/4, MOOR0…), MediaTek (MSSP0-3), Amlogic (MiTV4I), Amlogic Android TV 9/11 (AXSO0, AXFR)
+        "com.mitv.livetv", "com.mediatek.wwtv.tvcenter", "com.droidlogic.droidlivetv", "com.android.tv",
+        "com.google.android.tv", "com.google.android.tvtuner", "com.xiaomi.mitv.tvplayer", "com.mediatek.tv",
         "com.sony.dtv.tvx", "com.tcl.tv", "com.tcl.livetv", "com.tcl.tvlive", "com.droidlogic.tv", "com.skyworth.tv", "com.mstar.tv.tvplayer.ui",
         "com.realtek.tv", "com.hisense.tv", "com.panasonic.tv", "com.philips.tv",
     )
+
+    /** Tên gói trông giống app xem truyền hình, dùng khi gói trên tivi không nằm trong danh sách trên. */
+    val MAU_LIVE_TV = Regex("livetv|tvcenter|droidlivetv|tvtuner|tv\\.tvplayer", RegexOption.IGNORE_CASE)
 
     /** false = bỏ icon YouTube, Home chỉ còn TV trực tiếp + YouTube Music (nếu 3 icon vẫn không vừa màn hình). */
     const val CO_YOUTUBE = false
