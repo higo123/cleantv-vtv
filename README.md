@@ -1,2 +1,2 @@
 - Xóa hết app rác và quảng cáo của TV
-- Trên màn hình HOME chỉ còn duy nhất 3 icom : Icon "Live TV" - giành cho xem TV qua hệ thống cable anten, truyền hình cable. Icon của YouTuBe và YouTube Music. Tất cả các App khác và màn hình khác đều đã được ẩn vào các menu.
+- Trên màn hình HOME chỉ còn duy nhất 3 icon : icon "Live TV" - giành cho xem TV qua hệ thống cable anten, icon của YouTuBe và YouTube Music. Tất cả các App khác và màn hình khác đều đã được ẩn vào các menu.
