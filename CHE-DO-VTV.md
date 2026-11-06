@@ -18,3 +18,9 @@ Mặc định BẬT. Sau khi bấm "Cài Home sạch" hoặc "Áp dụng lên ti
 ## Chưa kiểm
 Chưa dựng APK, chưa chạy trên tivi thật. `boot_to_live_tv` chỉ chạy ở lần vào Home đầu tiên sau mỗi lần khởi động tivi;
 bật lại từ chế độ chờ bằng nút Power có thể không mở Live TV. Cần thử trên tivi thật cả hai trường hợp.
+
+## Ô "TV trực tiếp" và lời chào
+- App Live TV của tivi (Xiaomi) không có icon trên Home, nên app dò gói đang nhận link kênh truyền hình (`content://android.media.tv/channel`)
+  và đặt một ô riêng "TV trực tiếp" (link_tiles) mở đúng app đó. Chưa kiểm trên tivi thật.
+- Lời chào: Home hiện câu chào theo giờ của launcher kèm tên (`CheDoVtv.TEN_CHAO`, mặc định "bà Hương"; đổi ở ô "Tên chào" trong app).
+  Launcher không cho đặt nguyên câu tuỳ ý ("Chúc bà Hương một ngày mạnh khỏe") nếu không bật giao diện lễ hội; muốn đúng câu đó phải sửa launcher.

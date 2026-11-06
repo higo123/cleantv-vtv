@@ -1021,6 +1021,15 @@ class ThaoTacTv(private val adb: KetNoiAdb, private val kho: KhoSaoLuu) {
     /** Mở màn Cài đặt launcher của Home sạch trên tivi (chỗ chọn "Mở khi khởi động"). Bấm nút Cài đặt thì ra Cài đặt hệ thống. */
     fun moCaiDatLauncher() { sh("am start -a com.gathin.tvhome.action.LAUNCHER_SETTINGS -n $cmpHome >/dev/null 2>&1; true") }
 
+    /**
+     * App Live TV thật của tivi: gói đang nhận link kênh truyền hình (VIEW content://android.media.tv/channel/1), kể cả khi
+     * app đó không có icon trên Home (Xiaomi giấu). Không dò được thì null, app dùng danh sách gói hay gặp.
+     */
+    fun timGoiLiveTv(): String? = runCatching {
+        goiTrongDong(sh("cmd package query-activities --brief -a android.intent.action.VIEW -d content://android.media.tv/channel/1"))
+            .firstOrNull { it != "com.android.shell" }
+    }.getOrNull()
+
     fun choPhepDangPhat() { runCatching { sh("cmd notification allow_listener $pkgHome/$NS_HOME.NowPlayingListener 2>/dev/null; true") } }
 
     /** Bật HomeKeyService cho phím remote của mẫu (nút app, Cài đặt). Bo CVTE: không (upstream #741). */

@@ -15,6 +15,9 @@ object CheDoVtv {
         "com.realtek.tv", "com.hisense.tv", "com.panasonic.tv", "com.philips.tv",
     )
 
+    /** Tên hiện trong lời chào trên Home (launcher ghép với câu chào theo giờ). Đổi ở đây hoặc ở ô "Tên chào" trong app. */
+    const val TEN_CHAO = "bà Hương"
+
     /** YouTube (bản Android TV trước). */
     val GOI_YOUTUBE = listOf("com.google.android.youtube.tv", "com.google.android.youtube.tvunplugged", "com.google.android.youtube")
 
