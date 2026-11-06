@@ -17,12 +17,13 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - uses: android-actions/setup-android@v3
-
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Cài gói SDK cần (compileSdk 35)
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Cài gói SDK cần (compileSdk 35), dùng SDK có sẵn trên máy chạy
+        run: |
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKM" --licenses > /dev/null || true
+          "$SDKM" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Chạy test (lỗi test không chặn việc ra APK)
         continue-on-error: true
