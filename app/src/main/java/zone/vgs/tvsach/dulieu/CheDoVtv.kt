@@ -15,6 +15,9 @@ object CheDoVtv {
         "com.realtek.tv", "com.hisense.tv", "com.panasonic.tv", "com.philips.tv",
     )
 
+    /** false = bỏ icon YouTube, Home chỉ còn TV trực tiếp + YouTube Music (nếu 3 icon vẫn không vừa màn hình). */
+    const val CO_YOUTUBE = true
+
     /** Tên hiện trong lời chào trên Home (launcher ghép với câu chào theo giờ). Đổi ở đây hoặc ở ô "Tên chào" trong app. */
     const val TEN_CHAO = "bà Hương"
 

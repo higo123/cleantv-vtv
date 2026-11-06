@@ -24,3 +24,7 @@ bật lại từ chế độ chờ bằng nút Power có thể không mở Live 
   và đặt một ô riêng "TV trực tiếp" (link_tiles) mở đúng app đó. Chưa kiểm trên tivi thật.
 - Lời chào: Home hiện câu chào theo giờ của launcher kèm tên (`CheDoVtv.TEN_CHAO`, mặc định "bà Hương"; đổi ở ô "Tên chào" trong app).
   Launcher không cho đặt nguyên câu tuỳ ý ("Chúc bà Hương một ngày mạnh khỏe") nếu không bật giao diện lễ hội; muốn đúng câu đó phải sửa launcher.
+
+## Cỡ icon và thời tiết (v4)
+- Home xếp 5 cột (ô nhỏ vừa phải), 3 icon nằm gọn một hàng. Nếu vẫn không vừa: `CheDoVtv.CO_YOUTUBE = false` bỏ icon YouTube, còn TV trực tiếp + YouTube Music.
+- Thời tiết: chọn thành phố ở Tuỳ chỉnh → Thời tiết trước khi Áp dụng. Chưa chọn thì không có dòng thời tiết (app ghi cảnh báo).

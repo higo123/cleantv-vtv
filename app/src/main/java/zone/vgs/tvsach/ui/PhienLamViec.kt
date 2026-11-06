@@ -275,20 +275,21 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
         dock.clear()
         // App Live TV của tivi thường không có icon trên Home, nên đặt một ô riêng mở thẳng kênh truyền hình (link_tiles).
         live?.let { kenhChon.add(zone.vgs.tvsach.dulieu.OKenh(TEN_O_LIVE_TV, it, "content://android.media.tv/channel", "#1565C0")) }
-        goiYoutube?.let { dock.add(it) }
+        if (zone.vgs.tvsach.dulieu.CheDoVtv.CO_YOUTUBE) goiYoutube?.let { dock.add(it) }
         goiYtMusic?.let { dock.add(it) }
         if (tenChao.isBlank()) tenChao = zone.vgs.tvsach.dulieu.CheDoVtv.TEN_CHAO
-        // Icon to, tên dưới icon, không tên dock phía trên, 3 ô một hàng.
-        iconTo = true; tenDuoiApp = true; tenToTrenDock = false; soCot = 3; motHang = false
+        // 5 cột: ô nhỏ vừa phải (launcher thu ô từ 5 cột trở lên), 3 ô nằm gọn một hàng; tên dưới icon, không tên dock phía trên.
+        iconTo = false; tenDuoiApp = true; tenToTrenDock = false; soCot = 5; motHang = false
         thuVienApp = true; chiHienDock = true; thuVienTrongMenu = true; nutCaiDatThuVien = false
         anLoiChao = false; amLich = false; nutDangPhat = false; nutManCho = false; manChoDong = false
-        dongHoKhiYen = 0; hienThongSo = false; nutHenTat = false; thanhPho = null
+        dongHoKhiYen = 0; hienThongSo = false; nutHenTat = false
         moKhiBat = false; moKhiThuc = false; luonVeHome = false
         nangCao.putAll(zone.vgs.tvsach.dulieu.CheDoVtv.AN_NUT)
         nangCao["boot_to_live_tv"] = "true"
         if (live != null) { nangCao["live_tv_package"] = live }
         else ghi(t("Không thấy app Live TV trên tivi: chưa có icon Live TV và bật tivi chưa vào truyền hình. Vào Nâng cao đặt \"App xem truyền hình (Live TV)\" bằng tên gói của tivi rồi Áp dụng lại.",
             "No Live TV app found on the TV: no Live TV icon yet and power-on won't open TV. Set \"Live TV app\" in Advanced to the TV's package name and apply again."))
+        if (thanhPho == null) ghi(t("Chưa chọn thành phố nên Home chưa có thời tiết. Vào Tuỳ chỉnh → Thời tiết chọn thành phố rồi Áp dụng lại.", "No city chosen, so Home has no weather yet. In Customise → Weather pick a city and apply again."))
         if (goiYoutube == null) ghi(t("Tivi chưa có YouTube: chưa có icon YouTube trên Home.", "YouTube isn't installed on the TV: no YouTube icon on Home yet."))
         if (goiYtMusic == null) ghi(t("Tivi chưa có YouTube Music: chưa có icon YouTube Music trên Home.", "YouTube Music isn't installed on the TV: no YouTube Music icon on Home yet."))
     }
