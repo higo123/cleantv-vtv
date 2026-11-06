@@ -283,8 +283,9 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
         if (zone.vgs.tvsach.dulieu.CheDoVtv.CO_YOUTUBE) goiYoutube?.let { dock.add(it) }
         goiYtMusic?.let { dock.add(it) }
         if (tenChao.isBlank()) tenChao = zone.vgs.tvsach.dulieu.CheDoVtv.TEN_CHAO
-        // 5 cột: ô nhỏ vừa phải (launcher thu ô từ 5 cột trở lên), 3 ô nằm gọn một hàng; tên dưới icon, không tên dock phía trên.
-        iconTo = false; tenDuoiApp = true; tenToTrenDock = false; soCot = 5; motHang = false
+        // 4 cột: ô to hơn bản 5 cột mà 3 ô vẫn nằm gọn một hàng; tên dưới icon, không tên dock phía trên.
+        iconTo = false; tenDuoiApp = true; tenToTrenDock = false; soCot = zone.vgs.tvsach.dulieu.CheDoVtv.SO_COT; motHang = false
+        coChuDau = zone.vgs.tvsach.dulieu.CheDoVtv.CO_CHU_DAU
         thuVienApp = true; chiHienDock = true; thuVienTrongMenu = true; nutCaiDatThuVien = false
         anLoiChao = false; amLich = false; nutDangPhat = false; nutManCho = false; manChoDong = false
         dongHoKhiYen = 0; hienThongSo = false; nutHenTat = false

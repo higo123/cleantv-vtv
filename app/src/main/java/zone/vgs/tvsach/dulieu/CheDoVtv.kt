@@ -21,7 +21,13 @@ object CheDoVtv {
     val MAU_LIVE_TV = Regex("livetv|tvcenter|droidlivetv|tvtuner|tv\\.tvplayer", RegexOption.IGNORE_CASE)
 
     /** false = bỏ icon YouTube, Home chỉ còn TV trực tiếp + YouTube Music (nếu 3 icon vẫn không vừa màn hình). */
-    const val CO_YOUTUBE = false
+    const val CO_YOUTUBE = true
+
+    /** Số cột của Home: 4 cột cho 3 icon nằm cùng một hàng, mỗi ô to hơn bản 5 cột (3 = to nhất, vừa khít 3 icon). */
+    const val SO_COT = 4
+
+    /** Cỡ chữ đồng hồ, lời chào, ngày, thời tiết (%): 100 vừa, 125 lớn, 150 rất lớn. */
+    const val CO_CHU_DAU = 150
 
     /** Thành phố thời tiết mặc định (tên trong THANH_PHO) khi người dùng chưa chọn. */
     const val THANH_PHO = "Hà Nội"

@@ -38,3 +38,7 @@ Trên tivi Xiaomi "Live TV" là app thật có icon trong Thư viện ứng dụ
 Tìm theo thứ tự: gói trong `CheDoVtv.GOI_LIVE_TV` có icon trên tivi (com.mitv.livetv, com.mediatek.wwtv.tvcenter, com.droidlogic.droidlivetv, com.android.tv…),
 rồi gói có icon mà tên khớp `MAU_LIVE_TV`, rồi gói có trong máy. Không thấy thì nhật ký ghi danh sách app có icon để biết tên gói.
 Không còn đọc `live_tv_package` cũ trong config trên tivi (bản trước có thể đã ghi sai).
+
+## v7
+- Home có lại 3 icon: TV trực tiếp, YouTube, YouTube Music, xếp 4 cột (`CheDoVtv.SO_COT`; 3 = to nhất, 5 = nhỏ hơn) nên 3 icon cùng một hàng.
+- Chữ đồng hồ, lời chào, ngày, thời tiết cỡ 150% (`CheDoVtv.CO_CHU_DAU`; 125 = bớt to).
