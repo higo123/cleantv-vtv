@@ -74,9 +74,11 @@ jobs:
 
       - name: In chữ ký (phải giống nhau giữa các lần dựng)
         run: |
+          AS="$ANDROID_HOME/build-tools/35.0.0/apksigner"
           cd "$RUNNER_TEMP/chk"
-          keytool -printcert -jarfile "$GITHUB_WORKSPACE/$(ls app/build/outputs/apk/release/*.apk | head -n 1)" | grep "SHA256" || true
-          for f in assets/tvhome.apk assets/tvhome-xiaomi.apk; do keytool -printcert -jarfile $f | grep "SHA256" || true; done
+          for f in "$GITHUB_WORKSPACE/$(ls $GITHUB_WORKSPACE/app/build/outputs/apk/release/*.apk | head -n 1 | xargs -n1 basename | sed 's#^#app/build/outputs/apk/release/#')" assets/tvhome.apk assets/tvhome-xiaomi.apk; do
+            echo "$(basename $f): $("$AS" verify --print-certs "$f" 2>&1 | grep 'SHA-256' | head -n 1)"
+          done
 
       - name: Tải APK lên
         uses: actions/upload-artifact@v4
