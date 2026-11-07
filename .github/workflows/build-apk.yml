@@ -72,6 +72,12 @@ jobs:
             test "$n" -gt 0
           done
 
+      - name: In chữ ký (phải giống nhau giữa các lần dựng)
+        run: |
+          cd "$RUNNER_TEMP/chk"
+          keytool -printcert -jarfile "$GITHUB_WORKSPACE/$(ls app/build/outputs/apk/release/*.apk | head -n 1)" | grep "SHA256" || true
+          for f in assets/tvhome.apk assets/tvhome-xiaomi.apk; do keytool -printcert -jarfile $f | grep "SHA256" || true; done
+
       - name: Tải APK lên
         uses: actions/upload-artifact@v4
         with:
