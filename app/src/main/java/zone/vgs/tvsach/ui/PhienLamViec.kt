@@ -284,8 +284,9 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
         dock.clear()
         // Live TV là app thật có icon trong Thư viện (Xiaomi): đưa thẳng gói của nó lên đầu dock.
         live?.let { dock.add(it) }
-        if (zone.vgs.tvsach.dulieu.CheDoVtv.CO_YOUTUBE) goiYoutube?.let { dock.add(it) }
+        // Hai vị trí đầu bị khoá: TV trực tiếp, rồi YouTube Music. YouTube đứng thứ ba, đổi được.
         goiYtMusic?.let { dock.add(it) }
+        if (zone.vgs.tvsach.dulieu.CheDoVtv.CO_YOUTUBE) goiYoutube?.let { dock.add(it) }
         if (tenChao.isBlank()) tenChao = zone.vgs.tvsach.dulieu.CheDoVtv.TEN_CHAO
         // 4 cột: ô to hơn bản 5 cột mà 3 ô vẫn nằm gọn một hàng; tên dưới icon, không tên dock phía trên.
         iconTo = false; tenDuoiApp = true; tenToTrenDock = false; soCot = zone.vgs.tvsach.dulieu.CheDoVtv.SO_COT; motHang = false

@@ -152,10 +152,10 @@ index 0fd2b6c..d150fee 100644
  
 diff --git a/launcher/app/src/main/java/com/gathin/tvhome/HomeLock.java b/launcher/app/src/main/java/com/gathin/tvhome/HomeLock.java
 new file mode 100644
-index 0000000..be79d36
+index 0000000..3beee40
 --- /dev/null
 +++ b/launcher/app/src/main/java/com/gathin/tvhome/HomeLock.java
-@@ -0,0 +1,41 @@
+@@ -0,0 +1,60 @@
 +package com.gathin.tvhome;
 +
 +import android.app.Activity;
@@ -175,6 +175,25 @@ index 0000000..be79d36
 +        if (j == null) return false;
 +        for (String p : j.optString("locked_apps", "").split("[,;\\s]+")) if (!p.isEmpty() && p.equals(pkg)) return true;
 +        return false;
++    }
++
++    /** Gói bị khoá theo thứ tự trong config (cũng là thứ tự vị trí đầu hàng). */
++    static java.util.List<String> lockedList(Activity a) {
++        java.util.List<String> out = new java.util.ArrayList<>();
++        JSONObject j = Weather.cauHinh(a);
++        if (j == null) return out;
++        for (String p : j.optString("locked_apps", "").split("[,;\\s]+")) if (!p.isEmpty()) out.add(p);
++        return out;
++    }
++
++    /** Đưa các tile khoá lên đầu (theo thứ tự config), còn lại giữ thứ tự. keys có dạng "gói/lớp". */
++    static java.util.List<String> lockedFirst(Activity a, java.util.List<String> keys) {
++        java.util.List<String> locked = lockedList(a);
++        if (locked.isEmpty()) return keys;
++        java.util.List<String> out = new java.util.ArrayList<>();
++        for (String p : locked) for (String k : keys) if (k.startsWith(p + "/") && !out.contains(k)) out.add(k);
++        for (String k : keys) if (!out.contains(k)) out.add(k);
++        return out;
 +    }
 +
 +    /** Hỏi mã; đúng mới chạy onOk. Sai thì báo và không làm gì. */
@@ -198,10 +217,46 @@ index 0000000..be79d36
 +    }
 +}
 diff --git a/launcher/app/src/main/java/com/gathin/tvhome/MainActivity.java b/launcher/app/src/main/java/com/gathin/tvhome/MainActivity.java
-index 34a663f..b070799 100644
+index 34a663f..3d20989 100644
 --- a/launcher/app/src/main/java/com/gathin/tvhome/MainActivity.java
 +++ b/launcher/app/src/main/java/com/gathin/tvhome/MainActivity.java
-@@ -4170,7 +4170,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+@@ -1886,8 +1886,16 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+         refocusAfterLayout(slot);
+     }
+ 
++    /** Đã nhập mã để được di chuyển icon khoá trong phiên sắp xếp này. */
++    private boolean lockFree = false;
++
+     private void pickUp(int pos) {
+         if (pos >= adapter.movableCount()) return;   // the "Default home" tile stays put
++        String pk = adapter.packageAt(pos);
++        if (!lockFree && pk != null && HomeLock.isLocked(this, pk)) {
++            HomeLock.confirm(this, () -> { lockFree = true; pickUp(pos); });
++            return;
++        }
+         movingKey = adapter.keyAt(pos);
+         dimOthers();
+     }
+@@ -1927,6 +1935,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+         glass.setAccent(festive ? festival.accentColor() : 0);
+         btnReorder.setActivated(false);
+         List<String> keys = adapter.movableKeys();
++        final List<String> shown = new ArrayList<>(keys);
++        if (!lockFree) keys = HomeLock.lockedFirst(this, keys);   // icon khoá luôn ở đầu hàng nếu chưa nhập mã
++        lockFree = false;
+         List<String> before = orderAtStart;
+         orderAtStart = null;
+         // fill_dock false: the dock is what the owner put there, saved with its size, so the empty slots that
+@@ -1945,7 +1956,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+                 Toast.makeText(this, R.string.reorder_not_saved, Toast.LENGTH_SHORT).show();
+             }
+         }
+-        if (fillDockLeavesSlots) reloadTiles();   // the empty dock slots left out while reordering come back
++        if (fillDockLeavesSlots || !keys.equals(shown)) reloadTiles();   // the empty dock slots left out while reordering come back
+     }
+ 
+     /**
+@@ -4170,7 +4181,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
          View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
          LinearLayout rows = panel.findViewById(R.id.rows);
          PopupWindow popup = glassPopup(panel, (int) (200 * density));
@@ -210,7 +265,7 @@ index 34a663f..b070799 100644
              boolean inDock = position < COLUMNS;
              addSettingsMenuRow(rows, popup, inDock ? R.string.tile_replace_in_dock : R.string.tile_add_to_dock,
                      () -> startDockEditFor(key, inDock));
-@@ -4184,8 +4184,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+@@ -4184,8 +4195,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
              Toast.makeText(this, R.string.reorder_hint, Toast.LENGTH_LONG).show();
          });
          if (appLibraryEnabled) addSettingsMenuRow(rows, popup, R.string.library_remove_shortcut, () -> {
