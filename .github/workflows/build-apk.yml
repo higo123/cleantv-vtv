@@ -54,6 +54,19 @@ jobs:
       - name: Build APK release (ký bằng khoá debug vì không có ky.properties)
         run: ./gradlew :app:assembleRelease --console=plain
 
+      - name: Kiểm tra APK cuối có launcher đã vá
+        run: |
+          set -e
+          APK=$(ls app/build/outputs/apk/release/*.apk | head -n 1)
+          mkdir -p "$RUNNER_TEMP/chk" && cd "$RUNNER_TEMP/chk"
+          unzip -q -o "$GITHUB_WORKSPACE/$APK" 'assets/tvhome.apk' 'assets/tvhome-xiaomi.apk'
+          for f in assets/tvhome.apk assets/tvhome-xiaomi.apk; do
+            mkdir -p "x_$(basename $f)" && unzip -q -o "$f" 'classes*.dex' -d "x_$(basename $f)"
+            n=$(cat x_$(basename $f)/classes*.dex | grep -a -c "locked_apps" || true)
+            echo "$f: sha256=$(sha256sum $f | cut -c1-12) co_locked_apps=$n co_live_tv_on_wake=$(cat x_$(basename $f)/classes*.dex | grep -a -c live_tv_on_wake || true)"
+            test "$n" -gt 0
+          done
+
       - name: Tải APK lên
         uses: actions/upload-artifact@v4
         with:
