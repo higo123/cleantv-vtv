@@ -603,7 +603,11 @@ class ThaoTacTv(private val adb: KetNoiAdb, private val kho: KhoSaoLuu) {
 
     /** Cài đè Home sạch bản đi kèm app; bật lại dịch vụ trợ năng mà Android tắt khi cài lại. */
     /** Phiên bản Home sạch đang cài trên tivi (để biết bản vá mới đã lên tivi chưa). */
-    fun phienBanHome(): String = runCatching { sh("dumpsys package $pkgHome | grep -m1 versionName").trim().substringAfter("versionName=") }.getOrDefault("?")
+    fun phienBanHome(): String = runCatching {
+        // Không dùng grep -m1 / head: đóng ống sớm làm dumpsys báo "Broken pipe" lẫn vào kết quả.
+        sh("dumpsys package $pkgHome 2>/dev/null | grep versionName").lines()
+            .firstOrNull { it.contains("versionName=") }?.trim()?.substringAfter("versionName=")?.trim().orEmpty().ifBlank { "?" }
+    }.getOrDefault("?")
 
     fun capNhatLauncher(apk: ByteArray): Boolean {
         // Trên tivi đã đúng bản đi kèm thì thôi (24/10/2026): cài lại Home đang chạy làm Home bật lên trước, đẩy CleanTV
