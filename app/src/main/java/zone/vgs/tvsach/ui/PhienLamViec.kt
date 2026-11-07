@@ -264,7 +264,7 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
         if (!bat) {
             chiHienDock = false
             nangCao.remove("boot_to_live_tv"); nangCao.remove("app_labels")
-            zone.vgs.tvsach.dulieu.CheDoVtv.AN_NUT.keys.forEach { nangCao.remove(it) }
+            (zone.vgs.tvsach.dulieu.CheDoVtv.AN_NUT.keys + zone.vgs.tvsach.dulieu.CheDoVtv.CHO_BO_ICON.keys).forEach { nangCao.remove(it) }
         }
     }
 
@@ -286,11 +286,12 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
         // 4 cột: ô to hơn bản 5 cột mà 3 ô vẫn nằm gọn một hàng; tên dưới icon, không tên dock phía trên.
         iconTo = false; tenDuoiApp = true; tenToTrenDock = false; soCot = zone.vgs.tvsach.dulieu.CheDoVtv.SO_COT; motHang = false
         coChuDau = zone.vgs.tvsach.dulieu.CheDoVtv.CO_CHU_DAU
-        thuVienApp = true; chiHienDock = true; thuVienTrongMenu = true; nutCaiDatThuVien = false
+        thuVienApp = true; chiHienDock = true; thuVienTrongMenu = false; nutCaiDatThuVien = false  // nút Thư viện ứng dụng hiện ở Home để thêm app
         anLoiChao = false; amLich = false; nutDangPhat = false; nutManCho = false; manChoDong = false
         dongHoKhiYen = 0; hienThongSo = false; nutHenTat = false
         moKhiBat = false; moKhiThuc = false; luonVeHome = false
         nangCao.putAll(zone.vgs.tvsach.dulieu.CheDoVtv.AN_NUT)
+        nangCao.putAll(zone.vgs.tvsach.dulieu.CheDoVtv.CHO_BO_ICON)
         nangCao["boot_to_live_tv"] = "true"
         if (live != null) { nangCao["live_tv_package"] = live; nangCao["app_labels"] = "$live=TV trực tiếp" }
         else ghi(t("Các app có icon trên tivi: ${trangThai?.coBieuTuong?.sorted()?.joinToString().orEmpty()}. ", "Apps with a launcher icon on the TV: ${trangThai?.coBieuTuong?.sorted()?.joinToString().orEmpty()}. ") + t("Không thấy app Live TV trên tivi: chưa có icon Live TV và bật tivi chưa vào truyền hình. Vào Nâng cao đặt \"App xem truyền hình (Live TV)\" bằng tên gói của tivi rồi Áp dụng lại.",

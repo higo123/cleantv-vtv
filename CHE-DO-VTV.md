@@ -42,3 +42,8 @@ Không còn đọc `live_tv_package` cũ trong config trên tivi (bản trước
 ## v7
 - Home có lại 3 icon: TV trực tiếp, YouTube, YouTube Music, xếp 4 cột (`CheDoVtv.SO_COT`; 3 = to nhất, 5 = nhỏ hơn) nên 3 icon cùng một hàng.
 - Chữ đồng hồ, lời chào, ngày, thời tiết cỡ 150% (`CheDoVtv.CO_CHU_DAU`; 125 = bớt to).
+
+## v8: thêm / bỏ icon ngay trên Home
+- Nút **Thư viện ứng dụng** hiện lại ở Home: mở ra, bấm vào một app là thêm nó vào Home.
+- `tile_menu` bật: giữ OK (hoặc phím Menu) trên một icon ở Home → Di chuyển / **Bỏ khỏi màn hình chính** / Thông tin app.
+- Home chỉ chứa đủ số cột (`CheDoVtv.SO_COT` = 4 icon một hàng). Bấm Áp dụng lên tivi lần nữa sẽ đặt lại 3 icon mặc định.

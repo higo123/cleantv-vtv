@@ -44,9 +44,12 @@ object CheDoVtv {
     /** Gói không bao giờ bị tắt khi dọn trong chế độ này (xem KeHoach.laGoiCanGiu). */
     val GOI_GIU = (GOI_LIVE_TV + GOI_YOUTUBE + GOI_YT_MUSIC).toSet()
 
+    /** Giữ OK (hoặc bấm phím Menu) trên một icon ở Home để Di chuyển / Bỏ khỏi màn hình chính / Thông tin app. */
+    val CHO_BO_ICON = mapOf("tile_menu" to "true")
+
     /** Khoá Nâng cao ẩn các nút trên Home sạch. Vẫn giữ nút bánh răng Cài đặt để vào Wi-Fi / cài đặt tivi khi cần. */
     val AN_NUT = mapOf(
-        "show_network_pill" to "false", "show_inputs_pill" to "false", "show_library_pill" to "false",
+        "show_network_pill" to "false", "show_inputs_pill" to "false",
         "reorder_button" to "false", "show_home_settings_shortcut" to "false",
         // Không tự lấp ô dock trống bằng app khác, không hàng app dưới dock, bỏ dải nền dock.
         "fill_dock" to "false", "rows_below_dock" to "0", "dock_band" to "false",
