@@ -602,6 +602,9 @@ class ThaoTacTv(private val adb: KetNoiAdb, private val kho: KhoSaoLuu) {
     }
 
     /** Cài đè Home sạch bản đi kèm app; bật lại dịch vụ trợ năng mà Android tắt khi cài lại. */
+    /** Phiên bản Home sạch đang cài trên tivi (để biết bản vá mới đã lên tivi chưa). */
+    fun phienBanHome(): String = runCatching { sh("dumpsys package $pkgHome | grep -m1 versionName").trim().substringAfter("versionName=") }.getOrDefault("?")
+
     fun capNhatLauncher(apk: ByteArray): Boolean {
         // Trên tivi đã đúng bản đi kèm thì thôi (24/10/2026): cài lại Home đang chạy làm Home bật lên trước, đẩy CleanTV
         // xuống nền — chạy CleanTV ngay trên TCL 65Q646 kẹt ở "Đang cập nhật Home sạch…" mỗi lần Áp dụng.

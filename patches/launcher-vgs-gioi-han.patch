@@ -1,3 +1,16 @@
+diff --git a/launcher/app/build.gradle b/launcher/app/build.gradle
+index 4bceca4..6293280 100644
+--- a/launcher/app/build.gradle
++++ b/launcher/app/build.gradle
+@@ -14,7 +14,7 @@ android {
+         minSdk 26
+         targetSdk 34
+         versionCode 11
+-        versionName '3.2'
++        versionName '3.2-vgs3'
+     }
+ 
+     buildTypes {
 diff --git a/launcher/app/src/main/java/com/gathin/tvhome/AppAdapter.java b/launcher/app/src/main/java/com/gathin/tvhome/AppAdapter.java
 index dfccc4e..e2c8d49 100644
 --- a/launcher/app/src/main/java/com/gathin/tvhome/AppAdapter.java
@@ -220,10 +233,22 @@ index 0000000..a405ee4
 +    }
 +}
 diff --git a/launcher/app/src/main/java/com/gathin/tvhome/MainActivity.java b/launcher/app/src/main/java/com/gathin/tvhome/MainActivity.java
-index 34a663f..de2cd14 100644
+index 34a663f..ce113a3 100644
 --- a/launcher/app/src/main/java/com/gathin/tvhome/MainActivity.java
 +++ b/launcher/app/src/main/java/com/gathin/tvhome/MainActivity.java
-@@ -496,7 +496,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+@@ -308,6 +308,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+     private final BroadcastReceiver wakeReceiver = new BroadcastReceiver() {
+         @Override
+         public void onReceive(Context context, Intent intent) {
++            if (intent != null && Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
++                getSharedPreferences("wake", MODE_PRIVATE).edit().putBoolean("off", true).commit();
++                return;
++            }
++            getSharedPreferences("wake", MODE_PRIVATE).edit().putBoolean("off", false).commit();
+             openStartAppOnWake();
+         }
+     };
+@@ -496,7 +501,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
          bootToLiveTv = cfg.bootToLiveTv;
          openOnStartChoice = cfg.openOnStartChoice;
          openOnStartWaitMs = cfg.openOnStartNetworkWait * 1000L;
@@ -233,7 +258,38 @@ index 34a663f..de2cd14 100644
          liveTvAction = cfg.liveTvAction;
          liveTvInputId = cfg.liveTvInputId;
          appLibraryEnabled = cfg.appLibrary;
-@@ -1888,6 +1889,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+@@ -1121,9 +1127,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+         }
+         if (openOnStartOnWake) {
+             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+-                registerReceiver(wakeReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON), Context.RECEIVER_NOT_EXPORTED);
++                registerReceiver(wakeReceiver, wakeFilter(), Context.RECEIVER_NOT_EXPORTED);
+             } else {
+-                registerReceiver(wakeReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
++                registerReceiver(wakeReceiver, wakeFilter());
+             }
+         }
+ 
+@@ -1309,6 +1315,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+             default:
+                 break;
+         }
++        if (wakeLiveTv()) return;
+         if (openLiveTvAfterBoot()) return;
+         updateGreeting();
+         updatePanel();
+@@ -1532,6 +1539,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+         handler.removeCallbacks(clockCheck);
+         stopped = true;
+         tileRefresh.onStop();
++        if (bootToLiveTv && Weather.flag(this, "live_tv_on_wake", false)) {
++            android.os.PowerManager pw = getSystemService(android.os.PowerManager.class);
++            if (pw != null && !pw.isInteractive()) getSharedPreferences("wake", MODE_PRIVATE).edit().putBoolean("off", true).commit();
++        }
+     }
+ 
+     /**
+@@ -1888,6 +1899,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
  
      private void pickUp(int pos) {
          if (pos >= adapter.movableCount()) return;   // the "Default home" tile stays put
@@ -241,7 +297,7 @@ index 34a663f..de2cd14 100644
          movingKey = adapter.keyAt(pos);
          dimOthers();
      }
-@@ -1927,6 +1929,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+@@ -1927,6 +1939,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
          glass.setAccent(festive ? festival.accentColor() : 0);
          btnReorder.setActivated(false);
          List<String> keys = adapter.movableKeys();
@@ -250,7 +306,7 @@ index 34a663f..de2cd14 100644
          List<String> before = orderAtStart;
          orderAtStart = null;
          // fill_dock false: the dock is what the owner put there, saved with its size, so the empty slots that
-@@ -1945,7 +1949,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+@@ -1945,7 +1959,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                  Toast.makeText(this, R.string.reorder_not_saved, Toast.LENGTH_SHORT).show();
              }
          }
@@ -259,9 +315,27 @@ index 34a663f..de2cd14 100644
      }
  
      /**
-@@ -3556,6 +3560,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+@@ -3555,7 +3569,29 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+ 
      /** open_on_start_on_wake: the remote's power button is a light sleep on some sets, with no boot for
       *  openLiveTvAfterBoot to catch. */
++    private static IntentFilter wakeFilter() {
++        IntentFilter f = new IntentFilter(Intent.ACTION_SCREEN_ON);
++        f.addAction(Intent.ACTION_SCREEN_OFF);
++        return f;
++    }
++
++    /** live_tv_on_wake: Home đang hiện lúc tivi vào chờ (màn tắt) thì khi bật lại, kể cả khi tiến trình đã bị hệ thống dọn
++     *  và không có người nghe SCREEN_ON, mở Live TV. Cờ "off" ghi lúc màn tắt (receiver) hoặc lúc Home dừng khi máy không tương tác. */
++    private boolean wakeLiveTv() {
++        if (!bootToLiveTv || !Weather.flag(this, "live_tv_on_wake", false)) return false;
++        SharedPreferences p = getSharedPreferences("wake", MODE_PRIVATE);
++        if (!p.getBoolean("off", false)) return false;
++        p.edit().putBoolean("off", false).commit();
++        Intent live = liveTvIntent();
++        return live != null && openWhenReady(live);
++    }
++
      private void openStartAppOnWake() {
 +        // live_tv_on_wake: bật tivi bằng nút nguồn (thoát chế độ chờ) cũng vào thẳng Live TV, không chỉ khi khởi động.
 +        if (bootToLiveTv && Weather.flag(this, "live_tv_on_wake", false)) {
@@ -271,7 +345,7 @@ index 34a663f..de2cd14 100644
          String app = getSharedPreferences(Config.SETTINGS_NAME, MODE_PRIVATE).getString(OpenOnStart.KEY, "");
          if (app.isEmpty() || app.equals(getPackageName())) return;
          Intent i = OpenOnStart.intent(this, app);
-@@ -4170,12 +4179,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+@@ -4170,12 +4206,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
          View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
          LinearLayout rows = panel.findViewById(R.id.rows);
          PopupWindow popup = glassPopup(panel, (int) (200 * density));
@@ -286,7 +360,7 @@ index 34a663f..de2cd14 100644
              if (!beginReorder()) return;
              int at = adapter.positionOf(key);   // beginReorder can rebuild the tiles
              if (at < 0) return;
-@@ -4183,7 +4192,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+@@ -4183,7 +4219,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
              pickUp(at);
              Toast.makeText(this, R.string.reorder_hint, Toast.LENGTH_LONG).show();
          });
