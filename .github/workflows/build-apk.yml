@@ -12,6 +12,11 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Dùng khoá ký cố định (để APK mới cài đè được APK cũ)
+        run: |
+          mkdir -p ~/.android
+          cp signing/debug.keystore ~/.android/debug.keystore
+
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
