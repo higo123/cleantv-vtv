@@ -991,7 +991,12 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
         ketQuaCapNhatHome = ""
         val ok = io { tv.capNhatLauncher(zone.vgs.tvsach.CapNhat.moAsset(ctx, tv.apkHome).readBytes()) }
         banHomeTv = runCatching { io { tv.phienBanHome() } }.getOrDefault("?")
-        ketQuaCapNhatHome = (if (ok) "Xong. " else "LỖI. ") + "Home PVC: bản $banHomeTv. " + tv.lanCaiCuoi
+        val cfg = runCatching { io { tv.docCauHinhTv() } }.getOrNull()
+        val dongCfg = if (cfg == null) "Config trên tivi: KHÔNG ĐỌC ĐƯỢC." else
+            "Config trên tivi: khoá=" + cfg.optString("locked_apps", "(trống)") + "; chờ→TV=" + cfg.optString("live_tv_on_wake", "(trống)") +
+            "; mở TV khi bật=" + cfg.optString("boot_to_live_tv", "(trống)") + "; gói TV=" + cfg.optString("live_tv_package", "(trống)") +
+            "; dock=" + (cfg.optJSONArray("dock_apps")?.let { a -> (0 until a.length()).joinToString(",") { a.optString(it) } } ?: "(trống)")
+        ketQuaCapNhatHome = (if (ok) "Xong. " else "LỖI. ") + "Home PVC: bản $banHomeTv. " + tv.lanCaiCuoi + " " + dongCfg
     }
 
     fun napBanHome() { viewModelScope.launch { banHomeTv = runCatching { io { tv.phienBanHome() } }.getOrDefault("") } }
