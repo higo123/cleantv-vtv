@@ -43,9 +43,9 @@ jobs:
           echo "sdk.dir=$ANDROID_HOME" > "$RUNNER_TEMP/up/launcher/local.properties"
           cd "$RUNNER_TEMP/up/launcher"
           chmod +x gradlew
-          ./gradlew assembleRelease -q --console=plain -PlauncherApplicationId=com.ts.launcher
+          ./gradlew assembleRelease -q --console=plain --no-build-cache --rerun-tasks -PlauncherApplicationId=com.ts.launcher
           cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/app/src/main/assets/tvhome-xiaomi.apk"
-          ./gradlew assembleRelease -q --console=plain
+          ./gradlew assembleRelease -q --console=plain --no-build-cache --rerun-tasks
           cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/app/src/main/assets/tvhome.apk"
 
       - name: Báo nếu dựng launcher lỗi
@@ -57,7 +57,7 @@ jobs:
         run: ./gradlew :app:testReleaseUnitTest --console=plain
 
       - name: Build APK release (ký bằng khoá debug vì không có ky.properties)
-        run: ./gradlew :app:assembleRelease --console=plain
+        run: ./gradlew :app:assembleRelease --console=plain --no-build-cache --rerun-tasks
 
       - name: Kiểm tra APK cuối có launcher đã vá
         run: |
@@ -79,11 +79,6 @@ jobs:
           for f in "$GITHUB_WORKSPACE/$(ls $GITHUB_WORKSPACE/app/build/outputs/apk/release/*.apk | head -n 1 | xargs -n1 basename | sed 's#^#app/build/outputs/apk/release/#')" assets/tvhome.apk assets/tvhome-xiaomi.apk; do
             echo "$(basename $f): $("$AS" verify --print-certs "$f" 2>&1 | grep 'SHA-256' | head -n 1)"
           done
-
-      - name: Diagnostic - tìm keystore debug mà Gradle dùng
-        run: |
-          env | grep -i "android\|^HOME" || true
-          find / -name "debug.keystore" -not -path "*/proc/*" 2>/dev/null | while read k; do echo "$k $(keytool -list -keystore $k -storepass android 2>/dev/null | grep -o 'SHA-256.*\|SHA256.*' | head -n1)"; done
 
       - name: Tải APK lên
         uses: actions/upload-artifact@v4
