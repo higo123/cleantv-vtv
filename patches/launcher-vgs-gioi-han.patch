@@ -1,5 +1,5 @@
 diff --git a/launcher/app/src/main/java/com/gathin/tvhome/AppAdapter.java b/launcher/app/src/main/java/com/gathin/tvhome/AppAdapter.java
-index dfccc4e..4f97925 100644
+index dfccc4e..4460783 100644
 --- a/launcher/app/src/main/java/com/gathin/tvhome/AppAdapter.java
 +++ b/launcher/app/src/main/java/com/gathin/tvhome/AppAdapter.java
 @@ -199,6 +199,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -28,6 +28,15 @@ index dfccc4e..4f97925 100644
          Collections.sort(fresh, (a, b) -> {
              // The owner's own order first; tiles it does not know (new installs) follow by the rule below.
              int saved = Order.compare(savedRanks, a.component.flattenToShortString(), b.component.flattenToShortString());
+@@ -357,7 +362,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+         }
+         docked = 0;
+         while (docked < fresh.size() && isDocked(fresh.get(docked))) docked++;
+-        emptySlots = dockRow && !reordering ? DockSlots.empty(docked, dockSize, fresh.size(), fillDock) : 0;
++        emptySlots = dockRow && !reordering && !dockOnly ? DockSlots.empty(docked, dockSize, fresh.size(), fillDock) : 0;
+         for (int i = 0; i < emptySlots; i++) {
+             fresh.add(docked + i, new Entry(Entry.EMPTY, "", new ComponentName(ctx, "empty-dock-slot-" + i),
+                     null, null, null, 0));
 @@ -507,6 +512,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
          h.inDock = dockKind;
          boolean focused = h.card.isFocused();   // a rebind after reload() can hit the focused tile

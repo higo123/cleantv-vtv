@@ -60,6 +60,6 @@ object CheDoVtv {
         "show_network_pill" to "false", "show_inputs_pill" to "false",
         "reorder_button" to "false", "show_home_settings_shortcut" to "false",
         // Không tự lấp ô dock trống bằng app khác, không hàng app dưới dock, bỏ dải nền dock.
-        "fill_dock" to "false", "rows_below_dock" to "0", "dock_band" to "false",
+        "fill_dock" to "true", "rows_below_dock" to "0", "dock_band" to "false",
     )
 }
