@@ -74,6 +74,13 @@ jobs:
             test "$n" -gt 0
           done
 
+      - name: Phiên bản launcher nhúng trong APK cuối
+        run: |
+          cd "$RUNNER_TEMP/chk"
+          for f in assets/tvhome.apk assets/tvhome-xiaomi.apk; do
+            echo "EMBED $f sha=$(sha256sum $f | cut -c1-8) $("$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging $f 2>/dev/null | grep -o "package: name='[^']*' versionCode='[^']*' versionName='[^']*'")"
+          done
+
       - name: In chữ ký (phải giống nhau giữa các lần dựng)
         run: |
           AS="$ANDROID_HOME/build-tools/35.0.0/apksigner"
