@@ -1328,6 +1328,11 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
         put("uniform_tiles", oDeuNhau)
         put("vgs_che_do_vtv", cheDoVtv)
         if (cheDoVtv) put("home_max_icons", zone.vgs.tvsach.dulieu.CheDoVtv.TOI_DA_ICON)
+        if (cheDoVtv) {   // viền focus dày màu vàng + icon không chọn mờ đi (cần launcher đã vá)
+            put("focus_rim_color", zone.vgs.tvsach.dulieu.CheDoVtv.MAU_VIEN_FOCUS)
+            put("focus_rim_dp", zone.vgs.tvsach.dulieu.CheDoVtv.DO_DAY_VIEN_DP)
+            put("dim_unfocused_pct", zone.vgs.tvsach.dulieu.CheDoVtv.MO_ICON_PCT)
+        }
         if (moKhiBat) put("open_on_start_choice", true)
         if (moKhiBat && moKhiThuc) put("wake_open_app", true)
         if (luonVeHome) put("power_on_home_always", true)

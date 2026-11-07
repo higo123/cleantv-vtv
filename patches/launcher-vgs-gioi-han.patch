@@ -1,3 +1,68 @@
+diff --git a/launcher/app/src/main/java/com/gathin/tvhome/AppAdapter.java b/launcher/app/src/main/java/com/gathin/tvhome/AppAdapter.java
+index dfccc4e..4f97925 100644
+--- a/launcher/app/src/main/java/com/gathin/tvhome/AppAdapter.java
++++ b/launcher/app/src/main/java/com/gathin/tvhome/AppAdapter.java
+@@ -199,6 +199,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+     private final boolean fillDock;
+     /** CleanTV/VGS dock_only (ngocnd156, 04/11/2026): Home shows the dock alone, every other app in the library. */
+     private final boolean dockOnly;
++    /** dim_unfocused_pct: icon không được chọn mờ đi (0 = tắt). */
++    static float dimAlpha = 1f;
+     /** Dock apps found at the last reload, and the empty slots after them. */
+     private int docked, emptySlots;
+     /** Never shown as tiles (res/values/config.xml, hidden_apps). */
+@@ -236,6 +238,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+         this.dockSize = dockSize;
+         this.favourites = cfg.dockApps;
+         this.fillDock = cfg.fillDock;
++        dimAlpha = 1f - Weather.so(ctx, "dim_unfocused_pct", 0, 0, 80) / 100f;
+         this.dockOnly = cfg.appLibrary && Weather.flag(ctx, "dock_only", false);
+         this.hidden = new HashSet<>(cfg.hiddenApps);
+         this.libraryPreload = new HashSet<>(cfg.libraryApps);
+@@ -333,6 +336,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+             link.target = l.target;
+             fresh.add(link);
+         }
++        // dock_only: Home chỉ gồm app đã chọn (dock_apps + app thêm từ Thư viện), không lẫn app TV khác chen lên trước.
++        if (dockOnly) fresh.removeIf(en -> !favourites.contains(en.pkg) && !added.contains(en.pkg));
+         Collections.sort(fresh, (a, b) -> {
+             // The owner's own order first; tiles it does not know (new installs) follow by the rule below.
+             int saved = Order.compare(savedRanks, a.component.flattenToShortString(), b.component.flattenToShortString());
+@@ -507,6 +512,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+         h.inDock = dockKind;
+         boolean focused = h.card.isFocused();   // a rebind after reload() can hit the focused tile
+         h.name.setAlpha(focused ? 1f : restNameAlpha);
++        h.card.setAlpha(focused ? 1f : dimAlpha);
+         h.card.setScaleX(focused && animations ? focusScale() : 1f);
+         h.card.setScaleY(focused && animations ? focusScale() : 1f);
+         h.card.setTranslationY(focused && advancedEffects && !dockKind ? -4f * ctx.getResources().getDisplayMetrics().density : 0f);
+@@ -1019,6 +1025,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+                 name.animate().cancel();
+                 float scale = !animations ? 1f : advancedEffects ? 1.12f : 1.10f;
+                 float s = focused ? scale : 1f;
++                float al = focused ? 1f : dimAlpha;
++                if (!animations) view.setAlpha(al);
+                 if (!animations) {
+                     view.setScaleX(1f);
+                     view.setScaleY(1f);
+@@ -1031,7 +1039,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+                 } else if (reducedMotion) {
+                     // A short zoom with no hardware layer: building a layer for so short an animation costs more
+                     // frames than it saves. The name just appears instead of fading.
+-                    view.animate().scaleX(s).scaleY(s)
++                    view.animate().alpha(al).scaleX(s).scaleY(s)
+                             .translationY(focused && advancedEffects && !inDock ? -4f * density : 0f)
+                             .translationZ(focused && advancedEffects ? 8f * density : 0f)
+                             .setDuration(focused ? Motion.REDUCED_MS : 60)
+@@ -1043,7 +1051,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+                     // Only on focus: snapping it back to -6dp while it fades out would jump it up over the tile.
+                     if (focused) name.setTranslationY(density * 4f);
+                 } else {
+-                    view.animate().scaleX(s).scaleY(s)
++                    view.animate().alpha(al).scaleX(s).scaleY(s)
+                             .translationY(focused && advancedEffects && !inDock ? -4f * density : 0f)
+                             .translationZ(focused && advancedEffects ? 8f * density : 0f)
+                             .setDuration(advancedEffects ? (focused ? 220 : 170) : (focused ? 260 : 180))
 diff --git a/launcher/app/src/main/java/com/gathin/tvhome/AppLibraryDialog.java b/launcher/app/src/main/java/com/gathin/tvhome/AppLibraryDialog.java
 index 3733b51..a5e9116 100644
 --- a/launcher/app/src/main/java/com/gathin/tvhome/AppLibraryDialog.java
@@ -26,3 +91,45 @@ index 3733b51..a5e9116 100644
          if (!LibraryApps.save(activity, app.activityInfo.packageName, add)) {
              Toast.makeText(activity, R.string.library_save_failed, Toast.LENGTH_LONG).show();
              return;
+diff --git a/launcher/app/src/main/java/com/gathin/tvhome/GlassView.java b/launcher/app/src/main/java/com/gathin/tvhome/GlassView.java
+index 0fd2b6c..d150fee 100644
+--- a/launcher/app/src/main/java/com/gathin/tvhome/GlassView.java
++++ b/launcher/app/src/main/java/com/gathin/tvhome/GlassView.java
+@@ -29,6 +29,9 @@ public class GlassView extends View {
+     /** glass_style rim or halo: no sheen and no fill, only the crisp rim (and, for halo, a lighter outer glow). */
+     private boolean flat;
+     private boolean halo;
++    /** focus_rim_color (#RRGGBB) và focus_rim_dp: viền focus dày, màu riêng (0 = giữ kiểu gốc). */
++    private int rimColor;
++    private float rimDp;
+ 
+     public GlassView(Context context, AttributeSet attrs) {
+         super(context, attrs);
+@@ -38,6 +41,10 @@ public class GlassView extends View {
+         rim.setStrokeWidth(1.5f * density);
+         rim.setColor(0xCCFFFFFF);
+         glow.setStyle(Paint.Style.STROKE);
++        rimColor = Weather.mau(context, "focus_rim_color");
++        rimDp = Weather.so(context, "focus_rim_dp", 0, 0, 12);
++        if (rimColor != 0) rim.setColor(rimColor);
++        if (rimDp > 0) rim.setStrokeWidth(rimDp * density);
+         // Cache the slab as a texture. The spring only changes translation, so the GPU can
+         // move it without replaying clipPath and the glow on every frame. That path is
+         // software-rendered on the MT5895 and is what makes the highlight crawl.
+@@ -58,6 +65,7 @@ public class GlassView extends View {
+                     b = ((glowRgb & 0xFF) + 255 * 2) / 3;
+             rim.setColor(0xE6000000 | (r << 16) | (g << 8) | b);
+         }
++        if (rimColor != 0) rim.setColor(rimColor);
+         invalidate();
+     }
+ 
+@@ -65,7 +73,7 @@ public class GlassView extends View {
+     void setStyle(String style) {
+         flat = Config.GLASS_RIM.equals(style) || Config.GLASS_HALO.equals(style);
+         halo = Config.GLASS_HALO.equals(style);
+-        rim.setStrokeWidth((flat ? 2f : 1.5f) * density);
++        rim.setStrokeWidth((rimDp > 0 ? rimDp : flat ? 2f : 1.5f) * density);
+         invalidate();
+     }
+ 

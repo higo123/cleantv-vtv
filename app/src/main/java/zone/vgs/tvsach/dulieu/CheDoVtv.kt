@@ -48,6 +48,11 @@ object CheDoVtv {
     /** Tối đa số icon trên Home; icon thứ 5 bị từ chối im lặng (cần launcher đã vá: patches/launcher-vgs-gioi-han.patch). */
     const val TOI_DA_ICON = 4
 
+    /** Viền quanh icon đang chọn: màu, độ dày (dp). Icon còn lại mờ đi MO_ICON_PCT %. */
+    const val MAU_VIEN_FOCUS = "#FFC400"
+    const val DO_DAY_VIEN_DP = 4
+    const val MO_ICON_PCT = 35
+
     val CHO_BO_ICON = mapOf("tile_menu" to "true")
 
     /** Khoá Nâng cao ẩn các nút trên Home sạch. Vẫn giữ nút bánh răng Cài đặt để vào Wi-Fi / cài đặt tivi khi cần. */

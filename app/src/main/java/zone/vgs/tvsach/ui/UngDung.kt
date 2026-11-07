@@ -236,7 +236,7 @@ private fun ThanhTren(vm: PhienLamViec) {
         if (vm.man != Man.CHINH) {
             IconButton(onClick = { if (!vm.dangBan) quayLai(vm) }) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, t("Quay lại", "Back")) }
         } else Spacer(Modifier.width(12.dp))
-        Image(painterResource(R.drawable.logo_cleantv), "PVC-Clean", Modifier.size(32.dp))
+        Image(painterResource(R.drawable.logo_cleantv), "Chuong CLEAN", Modifier.size(32.dp))
         Spacer(Modifier.width(8.dp))
         Text("Clean", fontWeight = FontWeight.Bold, fontSize = 20.sp)
         Text("TV", fontWeight = FontWeight.Black, fontSize = 20.sp, color = Hong)
@@ -593,7 +593,7 @@ private fun ColumnScope.KetNoiTiviNay(vm: PhienLamViec) {
         OIcon(Icons.Rounded.Tv, 64.dp)
         Text(if (vm.dangKhoiPhuc) t("Kết nối lại để khôi phục tivi này", "Reconnect to restore this TV") else t("Dọn chính tivi này", "Clean this TV"),
             fontWeight = FontWeight.Bold, fontSize = 24.sp, textAlign = TextAlign.Center)
-        Phu(t("PVC-Clean đang chạy ngay trên tivi, không cần điện thoại.", "PVC-Clean is running on the TV itself, no phone needed."))
+        Phu(t("Chuong CLEAN đang chạy ngay trên tivi, không cần điện thoại.", "Chuong CLEAN is running on the TV itself, no phone needed."))
     }
     The(t("Trước khi bấm", "Before you start"), Icons.Rounded.Warning) {
         BuocSo(1, t("Tivi đã bật Gỡ lỗi USB (Tùy chọn nhà phát triển).", "USB debugging is on (Developer options)."))
@@ -1917,8 +1917,8 @@ private fun HopChonMau(vm: PhienLamViec) {
 @Composable
 private fun TheCongDong() {
     The(t("Cộng đồng VGS", "The VGS community"), Icons.Rounded.Groups) {
-        Phu(t("PVC-Clean miễn phí, do cộng đồng VGS làm. Vào nhóm để hỏi đáp, khoe góc máy, nhận bản mới sớm và săn quà công nghệ.",
-            "PVC-Clean is free, made by the VGS community. Join us for help, setups, early builds and tech giveaways."))
+        Phu(t("Chuong CLEAN miễn phí, do cộng đồng VGS làm. Vào nhóm để hỏi đáp, khoe góc máy, nhận bản mới sớm và săn quà công nghệ.",
+            "Chuong CLEAN is free, made by the VGS community. Join us for help, setups, early builds and tech giveaways."))
         val uri = androidx.compose.ui.platform.LocalUriHandler.current
         NutPhu(t("Nhóm Facebook Vietnam Gaming Setup", "Vietnam Gaming Setup on Facebook"), Icons.Rounded.Groups) {
             runCatching { uri.openUri("https://www.facebook.com/groups/vietnamgamingsetup") }
