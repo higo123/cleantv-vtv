@@ -809,7 +809,7 @@ private fun ManThongTin(vm: PhienLamViec) = Cuon {
     if (vm.daCoHomeSach) NutPhu(t("Đổi giao diện Home sạch", "Change the clean Home theme"), Icons.Rounded.Palette) { vm.moDoiTheme() }
     if (vm.daCoHomeSach) {
         androidx.compose.runtime.LaunchedEffect(vm.daCoHomeSach) { vm.napBanHome() }
-        if (vm.banHomeTv.isNotBlank()) Phu(t("Home sạch trên tivi: bản ${vm.banHomeTv} (bản mới nhất có đuôi vgs3)", "Clean Home on the TV: version ${vm.banHomeTv} (latest ends in vgs3)"))
+        if (vm.banHomeTv.isNotBlank()) Phu(t("Home PVC: bản ${vm.banHomeTv} (bản mới nhất có đuôi vgs3)", "Home PVC: version ${vm.banHomeTv} (latest ends in vgs3)"))
     }
     NutPhu(t("Khoá trẻ em (hẹn giờ + mã PIN)", "Kids lock (schedule + PIN)"), Icons.Rounded.Lock) { vm.moKhoaTre() }
     if (vm.saoLuu != null) NutPhu(t("Khôi phục tivi này", "Restore this TV"), Icons.Rounded.Restore) { vm.man = Man.KHOI_PHUC }

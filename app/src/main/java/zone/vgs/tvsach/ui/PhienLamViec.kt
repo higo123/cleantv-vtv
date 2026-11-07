@@ -1615,7 +1615,7 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
             return
         }
         val banHome = io { tv.phienBanHome() }
-        ghi(t("Home sạch trên tivi: bản $banHome (bản mới nhất có đuôi vgs3).", "Clean Home on the TV: version $banHome (latest ends in vgs3)."))
+        ghi(t("Home PVC: bản $banHome (bản mới nhất có đuôi vgs3).", "Home PVC: version $banHome (latest ends in vgs3)."))
         if (anh != null) thongBao = t("Đang gửi ảnh nền (${anh.size / 1024} KB)…", "Sending the wallpaper (${anh.size / 1024} KB)…")
         val bo = boAnhTheme()
         if (bo != null) thongBao = t("Đang gửi ${bo.size} ảnh nền…", "Sending ${bo.size} wallpaper pictures…")
