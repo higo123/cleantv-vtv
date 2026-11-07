@@ -33,6 +33,8 @@ object CapNhat {
     }
 
     fun moAsset(ctx: Context, ten: String): java.io.InputStream {
+        // Bản tự dựng: luôn dùng file đóng gói trong app. Bản kéo từ máy chủ gốc (OTA) từng đè lên launcher đã vá của mình.
+        if (ten.endsWith(".apk")) return ctx.assets.open(ten)
         val f = fileDuLieu(ctx, ten)
         return if (f.isFile && f.length() > 0) f.inputStream() else ctx.assets.open(ten)
     }
@@ -52,6 +54,8 @@ object CapNhat {
      * Trả về bản app mới nếu có (versionCode cao hơn bản đang chạy).
      */
     fun kiemTra(ctx: Context): BanMoi? {
+        return null   // Bản tự dựng: tắt kéo dữ liệu từ máy chủ gốc, tránh đè launcher đã vá bằng launcher gốc.
+        @Suppress("UNREACHABLE_CODE")
         val j = JSONObject(String(tai("$GOC/cap-nhat.json"), Charsets.UTF_8))
         val prefs = ctx.getSharedPreferences("ota", Context.MODE_PRIVATE)
         j.optJSONObject("duLieu")?.let { dl ->
