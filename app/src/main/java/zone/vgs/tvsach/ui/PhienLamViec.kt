@@ -1334,9 +1334,8 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
         put("vgs_che_do_vtv", cheDoVtv)
         if (cheDoVtv) put("live_tv_on_wake", true)   // bật tivi bằng nút nguồn cũng vào thẳng Live TV
         if (cheDoVtv && dock.isNotEmpty()) {
-            // Hai vị trí đầu của dock (TV trực tiếp, YouTube Music) bị khoá; goiKhoa đã dò sẵn thì dùng, không thì lấy 2 ô đầu.
+            // Hai vị trí đầu (TV trực tiếp, YouTube Music) khoá cứng: không xoá, không di chuyển, có ổ khoá nhỏ; goiKhoa đã dò sẵn thì dùng, không thì lấy 2 ô đầu.
             put("locked_apps", (goiKhoa.ifEmpty { dock.toList().take(2) }).joinToString(","))
-            put("lock_pin", zone.vgs.tvsach.dulieu.CheDoVtv.MA_XOA)
         }
         if (cheDoVtv) put("home_max_icons", zone.vgs.tvsach.dulieu.CheDoVtv.TOI_DA_ICON)
         if (cheDoVtv) {   // viền focus dày màu vàng + icon không chọn mờ đi (cần launcher đã vá)
