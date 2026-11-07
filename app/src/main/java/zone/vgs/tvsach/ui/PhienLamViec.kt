@@ -985,6 +985,15 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
 
     /** Phiên bản Home sạch đang chạy trên tivi (hiện dưới nút "Đổi giao diện Home sạch"). */
     var banHomeTv by mutableStateOf("")
+    /** Chỉ cập nhật Home PVC lên tivi và hiện kết quả thật (không đụng gì khác). */
+    var ketQuaCapNhatHome by mutableStateOf("")
+    fun capNhatHomePvc() = chay(t("Đang cập nhật Home PVC…", "Updating Home PVC…")) {
+        ketQuaCapNhatHome = ""
+        val ok = io { tv.capNhatLauncher(zone.vgs.tvsach.CapNhat.moAsset(ctx, tv.apkHome).readBytes()) }
+        banHomeTv = runCatching { io { tv.phienBanHome() } }.getOrDefault("?")
+        ketQuaCapNhatHome = (if (ok) "Xong. " else "LỖI. ") + "Home PVC: bản $banHomeTv. " + tv.lanCaiCuoi
+    }
+
     fun napBanHome() { viewModelScope.launch { banHomeTv = runCatching { io { tv.phienBanHome() } }.getOrDefault("") } }
 
     fun moRemote() = chay(t("Đang mở remote…", "Opening the remote…")) {

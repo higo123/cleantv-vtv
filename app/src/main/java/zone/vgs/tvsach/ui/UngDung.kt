@@ -810,6 +810,8 @@ private fun ManThongTin(vm: PhienLamViec) = Cuon {
     if (vm.daCoHomeSach) {
         androidx.compose.runtime.LaunchedEffect(vm.daCoHomeSach) { vm.napBanHome() }
         if (vm.banHomeTv.isNotBlank()) Phu(t("Home PVC: bản ${vm.banHomeTv} (bản mới nhất có đuôi vgs3)", "Home PVC: version ${vm.banHomeTv} (latest ends in vgs3)"))
+        NutPhu(t("Cập nhật Home PVC lên tivi", "Update Home PVC on the TV"), Icons.Rounded.Palette) { vm.capNhatHomePvc() }
+        if (vm.ketQuaCapNhatHome.isNotBlank()) Phu(vm.ketQuaCapNhatHome)
     }
     NutPhu(t("Khoá trẻ em (hẹn giờ + mã PIN)", "Kids lock (schedule + PIN)"), Icons.Rounded.Lock) { vm.moKhoaTre() }
     if (vm.saoLuu != null) NutPhu(t("Khôi phục tivi này", "Restore this TV"), Icons.Rounded.Restore) { vm.man = Man.KHOI_PHUC }

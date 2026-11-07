@@ -609,16 +609,21 @@ class ThaoTacTv(private val adb: KetNoiAdb, private val kho: KhoSaoLuu) {
             .firstOrNull { it.contains("versionName=") }?.trim()?.substringAfter("versionName=")?.trim().orEmpty().ifBlank { "?" }
     }.getOrDefault("?")
 
+    /** Ghi chú lần cài launcher gần nhất (để hiện lên màn hình khi cập nhật lỗi). */
+    var lanCaiCuoi = ""
+
     fun capNhatLauncher(apk: ByteArray): Boolean {
         // Trên tivi đã đúng bản đi kèm thì thôi (24/10/2026): cài lại Home đang chạy làm Home bật lên trước, đẩy CleanTV
         // xuống nền — chạy CleanTV ngay trên TCL 65Q646 kẹt ở "Đang cập nhật Home sạch…" mỗi lần Áp dụng.
         val bam = java.security.MessageDigest.getInstance("SHA-256").digest(apk).joinToString("") { "%02x".format(it) }
         val coSan = runCatching { sh("sha256sum \$(pm path $pkgHome | head -n 1 | sed 's/^package://') 2>/dev/null").trim().substringBefore(' ') }.getOrDefault("")
-        if (coSan == bam) return true
+        lanCaiCuoi = "file trong app ${bam.take(8)}, trên tivi ${coSan.take(8).ifBlank { "(không đọc được)" }}"
+        if (coSan == bam) { lanCaiCuoi += " - giống nhau, không cài lại"; return true }
         thieuBoNho = boNhoThap()
         if (thieuBoNho) return false
         val truoc = sh("settings get secure enabled_accessibility_services").trim()
         val out = caiApkHome(apk)
+        lanCaiCuoi += " | kết quả cài: " + out.trim().lines().lastOrNull().orEmpty().take(160)
         thieuBoNho = !out.contains("Success") && (THIEU_CHO.containsMatchIn(out) || (out.contains("TIMEOUT") && boNhoThap()))
         if (truoc.contains(pkgHome)) {
             sh("settings put secure enabled_accessibility_services '$truoc'; settings put secure accessibility_enabled 1")
