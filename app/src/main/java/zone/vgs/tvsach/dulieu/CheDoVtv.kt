@@ -48,6 +48,9 @@ object CheDoVtv {
     /** Tối đa số icon trên Home; icon thứ 5 bị từ chối im lặng (cần launcher đã vá: patches/launcher-vgs-gioi-han.patch). */
     const val TOI_DA_ICON = 4
 
+    /** Mã phải nhập để xoá Live TV / YouTube Music khỏi Home. */
+    const val MA_XOA = "123456"
+
     /** Viền quanh icon đang chọn: màu, độ dày (dp). Icon còn lại mờ đi MO_ICON_PCT %. */
     const val MAU_VIEN_FOCUS = "#FFC400"
     const val DO_DAY_VIEN_DP = 4

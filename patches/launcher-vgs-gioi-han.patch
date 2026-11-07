@@ -73,7 +73,7 @@ index dfccc4e..4460783 100644
                              .translationZ(focused && advancedEffects ? 8f * density : 0f)
                              .setDuration(advancedEffects ? (focused ? 220 : 170) : (focused ? 260 : 180))
 diff --git a/launcher/app/src/main/java/com/gathin/tvhome/AppLibraryDialog.java b/launcher/app/src/main/java/com/gathin/tvhome/AppLibraryDialog.java
-index 3733b51..a5e9116 100644
+index 3733b51..704293f 100644
 --- a/launcher/app/src/main/java/com/gathin/tvhome/AppLibraryDialog.java
 +++ b/launcher/app/src/main/java/com/gathin/tvhome/AppLibraryDialog.java
 @@ -271,6 +271,14 @@ final class AppLibraryDialog {
@@ -91,10 +91,18 @@ index 3733b51..a5e9116 100644
      private void fill(List<ResolveInfo> catalogue) {
          totalApps = catalogue.size();
          apps = catalogue;
-@@ -450,6 +458,8 @@ final class AppLibraryDialog {
+@@ -450,6 +458,16 @@ final class AppLibraryDialog {
      }
  
      private void changeHome(ResolveInfo app, boolean add) {
++        if (!add && HomeLock.isLocked(activity, app.activityInfo.packageName)) {
++            HomeLock.confirm(activity, () -> changeHomeNow(app, false));
++            return;
++        }
++        changeHomeNow(app, add);
++    }
++
++    private void changeHomeNow(ResolveInfo app, boolean add) {
 +        // Giới hạn số icon trên Home (home_max_icons, 0 = không giới hạn): đủ rồi thì im lặng không thêm.
 +        if (add && homeFull()) return;
          if (!LibraryApps.save(activity, app.activityInfo.packageName, add)) {
@@ -142,3 +150,77 @@ index 0fd2b6c..d150fee 100644
          invalidate();
      }
  
+diff --git a/launcher/app/src/main/java/com/gathin/tvhome/HomeLock.java b/launcher/app/src/main/java/com/gathin/tvhome/HomeLock.java
+new file mode 100644
+index 0000000..be79d36
+--- /dev/null
++++ b/launcher/app/src/main/java/com/gathin/tvhome/HomeLock.java
+@@ -0,0 +1,41 @@
++package com.gathin.tvhome;
++
++import android.app.Activity;
++import android.app.AlertDialog;
++import android.text.InputType;
++import android.widget.EditText;
++import android.widget.Toast;
++
++import org.json.JSONObject;
++
++/** CleanTV/VGS: app khoá (locked_apps trong config.json) chỉ bỏ khỏi Home được sau khi nhập mã (lock_pin). */
++final class HomeLock {
++    private HomeLock() { }
++
++    static boolean isLocked(Activity a, String pkg) {
++        JSONObject j = Weather.cauHinh(a);
++        if (j == null) return false;
++        for (String p : j.optString("locked_apps", "").split("[,;\\s]+")) if (!p.isEmpty() && p.equals(pkg)) return true;
++        return false;
++    }
++
++    /** Hỏi mã; đúng mới chạy onOk. Sai thì báo và không làm gì. */
++    static void confirm(Activity a, Runnable onOk) {
++        JSONObject j = Weather.cauHinh(a);
++        String pin = j == null ? "123456" : j.optString("lock_pin", "123456");
++        EditText in = new EditText(a);
++        in.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
++        in.setSingleLine(true);
++        AlertDialog d = new AlertDialog.Builder(a)
++                .setTitle("Nhập mã để xóa khỏi màn hình chính")
++                .setView(in)
++                .setPositiveButton("Xác nhận", (dlg, w) -> {
++                    if (pin.equals(in.getText().toString().trim())) onOk.run();
++                    else Toast.makeText(a, "Sai mã, không xóa", Toast.LENGTH_LONG).show();
++                })
++                .setNegativeButton("Hủy", null)
++                .create();
++        d.show();
++        in.requestFocus();
++    }
++}
+diff --git a/launcher/app/src/main/java/com/gathin/tvhome/MainActivity.java b/launcher/app/src/main/java/com/gathin/tvhome/MainActivity.java
+index 34a663f..b070799 100644
+--- a/launcher/app/src/main/java/com/gathin/tvhome/MainActivity.java
++++ b/launcher/app/src/main/java/com/gathin/tvhome/MainActivity.java
+@@ -4170,7 +4170,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+         View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
+         LinearLayout rows = panel.findViewById(R.id.rows);
+         PopupWindow popup = glassPopup(panel, (int) (200 * density));
+-        if (dockRow && position < adapter.movableCount()) {
++        if (dockRow && position < adapter.movableCount() && !HomeLock.isLocked(this, pkg)) {
+             boolean inDock = position < COLUMNS;
+             addSettingsMenuRow(rows, popup, inDock ? R.string.tile_replace_in_dock : R.string.tile_add_to_dock,
+                     () -> startDockEditFor(key, inDock));
+@@ -4184,8 +4184,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+             Toast.makeText(this, R.string.reorder_hint, Toast.LENGTH_LONG).show();
+         });
+         if (appLibraryEnabled) addSettingsMenuRow(rows, popup, R.string.library_remove_shortcut, () -> {
+-            if (LibraryApps.save(this, pkg, false)) reloadApps(false);
+-            else Toast.makeText(this, R.string.library_save_failed, Toast.LENGTH_LONG).show();
++            Runnable bo = () -> {
++                if (LibraryApps.save(this, pkg, false)) reloadApps(false);
++                else Toast.makeText(this, R.string.library_save_failed, Toast.LENGTH_LONG).show();
++            };
++            if (HomeLock.isLocked(this, pkg)) HomeLock.confirm(this, bo); else bo.run();
+         });
+         // Some firmware has no App info page at all; a row that only toasts "can't open" helps nobody.
+         Intent info = SystemSettings.appInfo(this, pkg);

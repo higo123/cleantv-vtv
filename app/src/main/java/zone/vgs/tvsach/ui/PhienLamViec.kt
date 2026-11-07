@@ -273,9 +273,13 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
      * ẩn lời chào, âm lịch, nút Đang phát / màn chờ / hẹn giờ và các nút Wi-Fi, Nguồn vào, Thư viện; bật tivi mở Live TV
      * (boot_to_live_tv: kênh xem gần nhất). Đồng hồ là phần đầu trang của launcher, không có khoá ẩn nên vẫn hiện.
      */
+    /** Gói bị khoá khỏi Home (xoá phải nhập mã): Live TV và YouTube Music, đặt lúc apCheDoVtv. */
+    private var goiKhoa: List<String> = emptyList()
+
     private suspend fun apCheDoVtv() {
         if (!cheDoVtv) return
         val live = goiLiveTv ?: io { tv.timGoiLiveTv() }?.takeIf { trangThai?.coBieuTuong?.contains(it) == true }
+        goiKhoa = listOfNotNull(live, goiYtMusic)
         kenhChon.clear()
         dock.clear()
         // Live TV là app thật có icon trong Thư viện (Xiaomi): đưa thẳng gói của nó lên đầu dock.
@@ -1327,6 +1331,10 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
         if (anLoiChao) put("show_greeting", false)
         put("uniform_tiles", oDeuNhau)
         put("vgs_che_do_vtv", cheDoVtv)
+        if (cheDoVtv && goiKhoa.isNotEmpty()) {
+            put("locked_apps", goiKhoa.joinToString(","))
+            put("lock_pin", zone.vgs.tvsach.dulieu.CheDoVtv.MA_XOA)
+        }
         if (cheDoVtv) put("home_max_icons", zone.vgs.tvsach.dulieu.CheDoVtv.TOI_DA_ICON)
         if (cheDoVtv) {   // viền focus dày màu vàng + icon không chọn mờ đi (cần launcher đã vá)
             put("focus_rim_color", zone.vgs.tvsach.dulieu.CheDoVtv.MAU_VIEN_FOCUS)
