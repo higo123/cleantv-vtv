@@ -80,6 +80,11 @@ jobs:
             echo "$(basename $f): $("$AS" verify --print-certs "$f" 2>&1 | grep 'SHA-256' | head -n 1)"
           done
 
+      - name: Diagnostic - tìm keystore debug mà Gradle dùng
+        run: |
+          env | grep -i "android\|^HOME" || true
+          find / -name "debug.keystore" -not -path "*/proc/*" 2>/dev/null | while read k; do echo "$k $(keytool -list -keystore $k -storepass android 2>/dev/null | grep -o 'SHA-256.*\|SHA256.*' | head -n1)"; done
+
       - name: Tải APK lên
         uses: actions/upload-artifact@v4
         with:
