@@ -1327,6 +1327,7 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
         if (anLoiChao) put("show_greeting", false)
         put("uniform_tiles", oDeuNhau)
         put("vgs_che_do_vtv", cheDoVtv)
+        if (cheDoVtv) put("home_max_icons", zone.vgs.tvsach.dulieu.CheDoVtv.TOI_DA_ICON)
         if (moKhiBat) put("open_on_start_choice", true)
         if (moKhiBat && moKhiThuc) put("wake_open_app", true)
         if (luonVeHome) put("power_on_home_always", true)

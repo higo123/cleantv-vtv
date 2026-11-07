@@ -25,6 +25,28 @@ jobs:
           yes | "$SDKM" --licenses > /dev/null || true
           "$SDKM" "platforms;android-35" "build-tools;35.0.0"
 
+      - name: Dựng lại launcher (bản vá giới hạn 4 icon) từ mã nguồn gốc
+        id: launcher
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          COMMIT="$(tr -d '[:space:]' < app/src/main/assets/upstream-commit.txt)"
+          git clone -q https://github.com/Gathin23/cleanyourtv "$RUNNER_TEMP/up"
+          git -C "$RUNNER_TEMP/up" checkout -q "$COMMIT"
+          git -C "$RUNNER_TEMP/up" apply --binary "$GITHUB_WORKSPACE/patches/launcher-vgs.patch"
+          git -C "$RUNNER_TEMP/up" apply --binary "$GITHUB_WORKSPACE/patches/launcher-vgs-gioi-han.patch"
+          echo "sdk.dir=$ANDROID_HOME" > "$RUNNER_TEMP/up/launcher/local.properties"
+          cd "$RUNNER_TEMP/up/launcher"
+          chmod +x gradlew
+          ./gradlew assembleRelease -q --console=plain -PlauncherApplicationId=com.ts.launcher
+          cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/app/src/main/assets/tvhome-xiaomi.apk"
+          ./gradlew assembleRelease -q --console=plain
+          cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/app/src/main/assets/tvhome.apk"
+
+      - name: Báo nếu dựng launcher lỗi
+        if: steps.launcher.outcome == 'failure'
+        run: echo "::warning::Dựng launcher lỗi - APK dùng launcher cũ, KHÔNG có giới hạn 4 icon."
+
       - name: Chạy test (lỗi test không chặn việc ra APK)
         continue-on-error: true
         run: ./gradlew :app:testReleaseUnitTest --console=plain

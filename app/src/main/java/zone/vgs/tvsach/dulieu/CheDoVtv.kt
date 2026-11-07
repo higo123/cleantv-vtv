@@ -45,6 +45,9 @@ object CheDoVtv {
     val GOI_GIU = (GOI_LIVE_TV + GOI_YOUTUBE + GOI_YT_MUSIC).toSet()
 
     /** Giữ OK (hoặc bấm phím Menu) trên một icon ở Home để Di chuyển / Bỏ khỏi màn hình chính / Thông tin app. */
+    /** Tối đa số icon trên Home; icon thứ 5 bị từ chối im lặng (cần launcher đã vá: patches/launcher-vgs-gioi-han.patch). */
+    const val TOI_DA_ICON = 4
+
     val CHO_BO_ICON = mapOf("tile_menu" to "true")
 
     /** Khoá Nâng cao ẩn các nút trên Home sạch. Vẫn giữ nút bánh răng Cài đặt để vào Wi-Fi / cài đặt tivi khi cần. */

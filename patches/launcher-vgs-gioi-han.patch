@@ -1,0 +1,28 @@
+diff --git a/launcher/app/src/main/java/com/gathin/tvhome/AppLibraryDialog.java b/launcher/app/src/main/java/com/gathin/tvhome/AppLibraryDialog.java
+index 3733b51..a5e9116 100644
+--- a/launcher/app/src/main/java/com/gathin/tvhome/AppLibraryDialog.java
++++ b/launcher/app/src/main/java/com/gathin/tvhome/AppLibraryDialog.java
+@@ -271,6 +271,14 @@ final class AppLibraryDialog {
+         });
+     }
+ 
++    private boolean homeFull() {
++        int max = Weather.so(activity, "home_max_icons", 0, 0, 64);
++        if (max <= 0) return false;
++        int n = 0;
++        for (ResolveInfo a : apps) if (onHome.test(a.activityInfo.packageName)) n++;
++        return n >= max;
++    }
++
+     private void fill(List<ResolveInfo> catalogue) {
+         totalApps = catalogue.size();
+         apps = catalogue;
+@@ -450,6 +458,8 @@ final class AppLibraryDialog {
+     }
+ 
+     private void changeHome(ResolveInfo app, boolean add) {
++        // Giới hạn số icon trên Home (home_max_icons, 0 = không giới hạn): đủ rồi thì im lặng không thêm.
++        if (add && homeFull()) return;
+         if (!LibraryApps.save(activity, app.activityInfo.packageName, add)) {
+             Toast.makeText(activity, R.string.library_save_failed, Toast.LENGTH_LONG).show();
+             return;
