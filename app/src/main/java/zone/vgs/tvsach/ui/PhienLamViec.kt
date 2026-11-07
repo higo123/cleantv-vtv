@@ -983,6 +983,10 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
         !(zone.vgs.tvsach.ManHinh.laTv && it == ctx.packageName) } }
         ?.sortedWith(compareBy({ it !in appTuCai }, { zone.vgs.tvsach.dulieu.tenDep(it).lowercase() })) ?: emptyList()
 
+    /** Phiên bản Home sạch đang chạy trên tivi (hiện dưới nút "Đổi giao diện Home sạch"). */
+    var banHomeTv by mutableStateOf("")
+    fun napBanHome() { viewModelScope.launch { banHomeTv = runCatching { io { tv.phienBanHome() } }.getOrDefault("") } }
+
     fun moRemote() = chay(t("Đang mở remote…", "Opening the remote…")) {
         remoteBao = ""
         goCoDau = daCoHomeSach && io { tv.coGoCoDau() }

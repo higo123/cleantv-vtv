@@ -807,6 +807,10 @@ private fun ManThongTin(vm: PhienLamViec) = Cuon {
     if (zone.vgs.tvsach.ManHinh.laTv) NutPhu(t("Hẹn giờ tắt & app trên tivi", "Sleep timer & apps on the TV"), Icons.Rounded.Apps) { vm.moRemote() }
     else NutPhu(t("Remote trên điện thoại", "Phone remote"), Icons.Rounded.SettingsRemote) { vm.moRemote() }
     if (vm.daCoHomeSach) NutPhu(t("Đổi giao diện Home sạch", "Change the clean Home theme"), Icons.Rounded.Palette) { vm.moDoiTheme() }
+    if (vm.daCoHomeSach) {
+        androidx.compose.runtime.LaunchedEffect(vm.daCoHomeSach) { vm.napBanHome() }
+        if (vm.banHomeTv.isNotBlank()) Phu(t("Home sạch trên tivi: bản ${vm.banHomeTv} (bản mới nhất có đuôi vgs3)", "Clean Home on the TV: version ${vm.banHomeTv} (latest ends in vgs3)"))
+    }
     NutPhu(t("Khoá trẻ em (hẹn giờ + mã PIN)", "Kids lock (schedule + PIN)"), Icons.Rounded.Lock) { vm.moKhoaTre() }
     if (vm.saoLuu != null) NutPhu(t("Khôi phục tivi này", "Restore this TV"), Icons.Rounded.Restore) { vm.man = Man.KHOI_PHUC }
     else if (vm.coDauCleanTv) NutPhu(t("Khôi phục (không có sao lưu)", "Restore (no backup)"), Icons.Rounded.Restore) { vm.man = Man.KHOI_PHUC }
