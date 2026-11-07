@@ -80,6 +80,11 @@ jobs:
             echo "$(basename $f): $("$AS" verify --print-certs "$f" 2>&1 | grep 'SHA-256' | head -n 1)"
           done
 
+      - name: Diagnostic - signingReport
+        run: |
+          ./gradlew :app:signingReport --console=plain 2>&1 | grep -E "Variant: release|Store:|SHA-256|Config:" | head -8
+          ls -la ~/.android/ || true
+
       - name: Tải APK lên
         uses: actions/upload-artifact@v4
         with:
