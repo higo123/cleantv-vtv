@@ -121,6 +121,19 @@ index 3733b51..09e1570 100644
          if (!LibraryApps.save(activity, app.activityInfo.packageName, add)) {
              Toast.makeText(activity, R.string.library_save_failed, Toast.LENGTH_LONG).show();
              return;
+diff --git a/launcher/app/src/main/java/com/gathin/tvhome/BootHome.java b/launcher/app/src/main/java/com/gathin/tvhome/BootHome.java
+index e17d01b..d3e2604 100644
+--- a/launcher/app/src/main/java/com/gathin/tvhome/BootHome.java
++++ b/launcher/app/src/main/java/com/gathin/tvhome/BootHome.java
+@@ -78,7 +78,7 @@ public class BootHome extends BroadcastReceiver {
+         if (!config.overlayApplied && tries == 0) note(context, "l");
+         if (config.overlayApplied && tries > 0 && !wasApplied) note(context, "u");
+         if (config.overlayApplied) wasApplied = true;
+-        if (redirect || config.powerOnHomeAlways) enableHelper(context);
++        if (redirect || config.powerOnHomeAlways || (config.bootToLiveTv && Weather.flag(context, "live_tv_on_wake", false))) enableHelper(context);
+         long up = android.os.SystemClock.elapsedRealtime();
+         if (!(config.powerOnHomeAlways || redirect) && !config.bootToLiveTv
+                 && up + RETRY_MS < (config.overlayApplied ? RETRY_UNTIL_MS : BIND_WAKE_MS)) {
 diff --git a/launcher/app/src/main/java/com/gathin/tvhome/GlassView.java b/launcher/app/src/main/java/com/gathin/tvhome/GlassView.java
 index 0fd2b6c..d150fee 100644
 --- a/launcher/app/src/main/java/com/gathin/tvhome/GlassView.java
@@ -162,6 +175,70 @@ index 0fd2b6c..d150fee 100644
 +        rim.setStrokeWidth((rimDp > 0 ? rimDp : flat ? 2f : 1.5f) * density);
          invalidate();
      }
+ 
+diff --git a/launcher/app/src/main/java/com/gathin/tvhome/HomeKeyService.java b/launcher/app/src/main/java/com/gathin/tvhome/HomeKeyService.java
+index 78fcc8e..9adce28 100644
+--- a/launcher/app/src/main/java/com/gathin/tvhome/HomeKeyService.java
++++ b/launcher/app/src/main/java/com/gathin/tvhome/HomeKeyService.java
+@@ -376,6 +376,15 @@ public class HomeKeyService extends AccessibilityService {
+         if (!stockHome.isEmpty() || !powerOnLiveTv.isEmpty()) probeAtBoot();
+         watchDreamEnd(!stockHome.isEmpty());
+         armStandbyExit();
++        // CleanTV/VGS live_tv_on_wake: bật tivi từ chế độ chờ (nút Power) thì mở thẳng Live TV. Service này luôn chạy nên
++        // không phụ thuộc Home có bị hệ thống dọn khỏi bộ nhớ hay không, và mở được cả khi tivi đang ở app khác.
++        wakeLiveTvPkg = config.bootToLiveTv && Weather.flag(this, "live_tv_on_wake", false) ? config.liveTvPackage : "";
++        wakeLiveTvAction = config.liveTvAction;
++        if (!wakeLiveTvPkg.isEmpty()) armLiveTvWake();
++        else if (liveWakeReceiver != null) {
++            try { unregisterReceiver(liveWakeReceiver); } catch (IllegalArgumentException ignored) { }
++            liveWakeReceiver = null;
++        }
+         holdAppKeys = RemoteKeys.parseHoldAppKeys(config.appKeys);
+         holdAppScancodes = RemoteKeys.parseHoldAppScancodes(config.appKeys);
+         // gamepad_passthrough, off by default. Only with key_filter on: off, the service never filters keys.
+@@ -468,6 +477,7 @@ public class HomeKeyService extends AccessibilityService {
+         if (typeReceiver != null) { try { unregisterReceiver(typeReceiver); } catch (IllegalArgumentException ignored) { } typeReceiver = null; }
+         if (reloadReceiver != null) { try { unregisterReceiver(reloadReceiver); } catch (IllegalArgumentException ignored) { } reloadReceiver = null; }
+         if (quietReceiver != null) { try { unregisterReceiver(quietReceiver); } catch (IllegalArgumentException ignored) { } quietReceiver = null; }
++        if (liveWakeReceiver != null) { try { unregisterReceiver(liveWakeReceiver); } catch (IllegalArgumentException ignored) { } liveWakeReceiver = null; }
+         if (repairRecord && !steppingOut) ServiceRepair.disconnected(this, getClass());
+         return super.onUnbind(intent);
+     }
+@@ -503,6 +513,35 @@ public class HomeKeyService extends AccessibilityService {
+         return pkg.equals("com.google.android.katniss") || pkg.equals("com.google.android.googlequicksearchbox");
+     }
+ 
++    private String wakeLiveTvPkg = "", wakeLiveTvAction = "";
++    private BroadcastReceiver liveWakeReceiver;
++
++    private void armLiveTvWake() {
++        if (liveWakeReceiver != null) return;
++        liveWakeReceiver = new BroadcastReceiver() {
++            @Override
++            public void onReceive(Context context, Intent intent) {
++                handler.postDelayed(HomeKeyService.this::openLiveTvAtWake, POWER_ON_ALWAYS_DELAY_MS);
++            }
++        };
++        registerReceiver(liveWakeReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
++    }
++
++    private void openLiveTvAtWake() {
++        if (wakeLiveTvPkg.isEmpty()) return;
++        Intent i = getPackageManager().getLeanbackLaunchIntentForPackage(wakeLiveTvPkg);
++        if (i == null && !wakeLiveTvAction.isEmpty()) {
++            Intent byAction = new Intent(wakeLiveTvAction).setPackage(wakeLiveTvPkg);
++            if (getPackageManager().resolveActivity(byAction, 0) != null) i = byAction;
++        }
++        if (i == null) return;
++        try {
++            startActivity(i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
++        } catch (ActivityNotFoundException | SecurityException refused) {
++            android.util.Log.w(BootHome.TAG, "live tv at wake refused: " + refused);
++        }
++    }
++
+     /** How long power_on_home stays armed after the screen turns on without a reboot. */
+     static final long SCREEN_ON_WINDOW_MS = 60 * 1000L;
  
 diff --git a/launcher/app/src/main/java/com/gathin/tvhome/HomeLock.java b/launcher/app/src/main/java/com/gathin/tvhome/HomeLock.java
 new file mode 100644

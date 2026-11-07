@@ -1036,6 +1036,13 @@ class ThaoTacTv(private val adb: KetNoiAdb, private val kho: KhoSaoLuu) {
     fun choPhepDangPhat() { runCatching { sh("cmd notification allow_listener $pkgHome/$NS_HOME.NowPlayingListener 2>/dev/null; true") } }
 
     /** Bật HomeKeyService cho phím remote của mẫu (nút app, Cài đặt). Bo CVTE: không (upstream #741). */
+    /** Chế độ TV trực tiếp: bật dịch vụ trợ năng của Home sạch + quyền mở app nền, để bật tivi từ chế độ chờ là vào thẳng Live TV. */
+    fun chuanBiBatLiveTv() {
+        if (laBoMachCvte()) return
+        sh("pm grant $pkgHome android.permission.WRITE_SECURE_SETTINGS 2>/dev/null; appops set $pkgHome SYSTEM_ALERT_WINDOW allow 2>/dev/null; true")
+        batDichVu("HomeKeyService")
+    }
+
     fun batBatPhimHome() { if (!laBoMachCvte()) batDichVu("HomeKeyService") }
 
     /**
