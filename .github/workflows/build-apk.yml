@@ -14,8 +14,10 @@ jobs:
 
       - name: Dùng khoá ký cố định (để APK mới cài đè được APK cũ)
         run: |
-          mkdir -p ~/.android
+          # AGP mới đọc ~/.config/.android/debug.keystore (không phải ~/.android): đặt cả hai chỗ.
+          mkdir -p ~/.android ~/.config/.android
           cp signing/debug.keystore ~/.android/debug.keystore
+          cp signing/debug.keystore ~/.config/.android/debug.keystore
 
       - uses: actions/setup-java@v5
         with:
@@ -43,9 +45,9 @@ jobs:
           echo "sdk.dir=$ANDROID_HOME" > "$RUNNER_TEMP/up/launcher/local.properties"
           cd "$RUNNER_TEMP/up/launcher"
           chmod +x gradlew
-          ./gradlew assembleRelease -q --console=plain --no-build-cache --rerun-tasks -PlauncherApplicationId=com.ts.launcher
+          ./gradlew assembleRelease -q --console=plain --no-build-cache -PlauncherApplicationId=com.ts.launcher
           cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/app/src/main/assets/tvhome-xiaomi.apk"
-          ./gradlew assembleRelease -q --console=plain --no-build-cache --rerun-tasks
+          ./gradlew assembleRelease -q --console=plain --no-build-cache
           cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/app/src/main/assets/tvhome.apk"
 
       - name: Báo nếu dựng launcher lỗi
@@ -57,7 +59,7 @@ jobs:
         run: ./gradlew :app:testReleaseUnitTest --console=plain
 
       - name: Build APK release (ký bằng khoá debug vì không có ky.properties)
-        run: ./gradlew :app:assembleRelease --console=plain --no-build-cache --rerun-tasks
+        run: ./gradlew :app:assembleRelease --console=plain --no-build-cache
 
       - name: Kiểm tra APK cuối có launcher đã vá
         run: |
@@ -79,11 +81,6 @@ jobs:
           for f in "$GITHUB_WORKSPACE/$(ls $GITHUB_WORKSPACE/app/build/outputs/apk/release/*.apk | head -n 1 | xargs -n1 basename | sed 's#^#app/build/outputs/apk/release/#')" assets/tvhome.apk assets/tvhome-xiaomi.apk; do
             echo "$(basename $f): $("$AS" verify --print-certs "$f" 2>&1 | grep 'SHA-256' | head -n 1)"
           done
-
-      - name: Diagnostic - signingReport
-        run: |
-          ./gradlew :app:signingReport --console=plain 2>&1 | grep -E "Variant: release|Store:|SHA-256|Config:" | head -8
-          ls -la ~/.android/ || true
 
       - name: Tải APK lên
         uses: actions/upload-artifact@v4
