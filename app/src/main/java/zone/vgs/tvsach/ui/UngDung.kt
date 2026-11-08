@@ -813,6 +813,9 @@ private fun ManThongTin(vm: PhienLamViec) = Cuon {
         NutPhu(t("Cập nhật Home PVC lên tivi", "Update Home PVC on the TV"), Icons.Rounded.Palette) { vm.capNhatHomePvc() }
         if (vm.ketQuaCapNhatHome.isNotBlank()) Phu(vm.ketQuaCapNhatHome)
     }
+    NutPhu(t("Chặn cập nhật tivi", "Block TV updates"), Icons.Rounded.Lock, enabled = !vm.dangBan && !vm.chanKhongPhaiTivi) { vm.chanCapNhatTv() }
+    NutPhu(t("Bật lại cập nhật tivi", "Re-enable TV updates"), Icons.Rounded.Apps, enabled = !vm.dangBan) { vm.batLaiCapNhatTv() }
+    if (vm.ketQuaChanOta.isNotBlank()) Phu(vm.ketQuaChanOta)
     NutPhu(t("Khoá trẻ em (hẹn giờ + mã PIN)", "Kids lock (schedule + PIN)"), Icons.Rounded.Lock) { vm.moKhoaTre() }
     if (vm.saoLuu != null) NutPhu(t("Khôi phục tivi này", "Restore this TV"), Icons.Rounded.Restore) { vm.man = Man.KHOI_PHUC }
     else if (vm.coDauCleanTv) NutPhu(t("Khôi phục (không có sao lưu)", "Restore (no backup)"), Icons.Rounded.Restore) { vm.man = Man.KHOI_PHUC }

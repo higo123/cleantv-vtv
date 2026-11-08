@@ -999,6 +999,40 @@ class PhienLamViec(app: Application) : AndroidViewModel(app) {
         ketQuaCapNhatHome = (if (ok) "Xong. " else "LỖI. ") + "Home PVC: bản $banHomeTv. " + tv.lanCaiCuoi + " " + dongCfg
     }
 
+    /** Kết quả chặn / bật lại cập nhật firmware, đọc lại từ tivi sau khi làm. */
+    var ketQuaChanOta by mutableStateOf("")
+
+    fun chanCapNhatTv() = chay(t("Đang chặn cập nhật tivi…", "Blocking TV updates…")) {
+        ketQuaChanOta = ""
+        val info = thongTin ?: return@chay
+        if (chanKhongPhaiTivi) return@chay
+        val sl = saoLuu ?: io { tv.damBaoSaoLuu(info, getprop, ip) }.also { saoLuu = it }
+        val kq = io { tv.chanCapNhat(sl) { s -> ghiTuIo(s) } }
+        val chan = kq.daTat + kq.daTatSan
+        val d = StringBuilder()
+        when {
+            kq.khoiDongLai -> d.append(t("DỪNG: tivi vừa khởi động lại khi tắt gói cập nhật nên app đã bật lại gói đó. Chưa chặn gì. ", "STOPPED: the TV restarted while disabling an updater package, so the app re-enabled it. Nothing is blocked. "))
+            chan.isEmpty() -> d.append(t("Chưa chặn được gì: tivi này không có gói cập nhật hãng đã biết. ", "Nothing blocked: this TV has none of the known updater packages. "))
+            kq.xacNhan -> d.append(t("XONG, đã đọc lại từ tivi: các gói cập nhật đang tắt, tivi vẫn trả lời, vẫn có Home. ", "DONE, read back from the TV: the updater packages are disabled, the TV still responds and has a Home. "))
+            else -> d.append(t("CHƯA XÁC NHẬN: đọc lại từ tivi chưa thấy đủ gói đang tắt. ", "NOT CONFIRMED: reading back from the TV did not show every package disabled. "))
+        }
+        if (kq.daTat.isNotEmpty()) d.append(t("Vừa tắt: ", "Just disabled: ")).append(kq.daTat.joinToString(", ")).append(". ")
+        if (kq.daTatSan.isNotEmpty()) d.append(t("Đã tắt từ trước: ", "Already disabled: ")).append(kq.daTatSan.joinToString(", ")).append(". ")
+        if (kq.daDo.isNotEmpty()) d.append(t("Gói tivi tự nhận xử lý Cập nhật hệ thống: ", "Package the TV reports for System update: ")).append(kq.daDo.joinToString(", ")).append(". ")
+        if (kq.loi.isNotEmpty()) d.append(t("Lỗi: ", "Errors: ")).append(kq.loi.joinToString("; ")).append(". ")
+        if (kq.nghiVan.isNotEmpty()) d.append(t("Gói trông giống cập nhật nhưng app KHÔNG đụng tới (gửi tao xem): ", "Packages that look like updaters but were NOT touched: ")).append(kq.nghiVan.joinToString(", ")).append(". ")
+        ketQuaChanOta = d.toString().trim()
+    }
+
+    fun batLaiCapNhatTv() = chay(t("Đang bật lại cập nhật tivi…", "Re-enabling TV updates…")) {
+        ketQuaChanOta = ""
+        val info = thongTin ?: return@chay
+        val sl = saoLuu ?: io { tv.damBaoSaoLuu(info, getprop, ip) }.also { saoLuu = it }
+        val loi = io { tv.batLaiCapNhat(sl) { s -> ghiTuIo(s) } }
+        ketQuaChanOta = if (loi.isEmpty()) t("Đã bật lại các gói cập nhật mà app từng tắt.", "Re-enabled the updater packages the app had disabled.")
+        else t("Không bật lại được: ", "Could not re-enable: ") + loi.joinToString(", ")
+    }
+
     fun napBanHome() { viewModelScope.launch { banHomeTv = runCatching { io { tv.phienBanHome() } }.getOrDefault("") } }
 
     fun moRemote() = chay(t("Đang mở remote…", "Opening the remote…")) {

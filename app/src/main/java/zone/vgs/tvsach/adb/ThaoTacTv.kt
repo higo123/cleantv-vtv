@@ -396,6 +396,106 @@ class ThaoTacTv(private val adb: KetNoiAdb, private val kho: KhoSaoLuu) {
         return false
     }
 
+    // ---------- Chặn cập nhật firmware ----------
+
+    /**
+     * Gói cập nhật firmware của tivi Xiaomi. CHỈ tắt đúng những gói này, không đoán theo tên (nguồn: danh sách debloat
+     * Xiaomi TV công khai; trong kho mẫu của app, com.xiaomi.mitv.updateservice có 11 danh sách tắt / 9 danh sách giữ,
+     * com.xiaomi.mitv.upgrade 4 tắt / 2 giữ). Chưa thử trên tivi của chủ nhà: vì vậy mỗi gói tắt xong đều bị đọc lại,
+     * tivi khởi động lại thì tự bật lại gói đó. Gói khác trông giống cập nhật chỉ được liệt kê, không đụng tới.
+     */
+    val GOI_OTA_HANG = listOf("com.xiaomi.mitv.updateservice", "com.xiaomi.mitv.upgrade")
+
+    private val NGHI_OTA = Regex("""(^|[._])(ota|fota|upgrade|upgrader|updater|update|updateservice|systemupdate|osupdate|sysupdate)([._]|$)|systemupgrade|abupdate|upgrade|updater""", RegexOption.IGNORE_CASE)
+
+    class KetQuaChanOta(
+        val daTat: List<String>,
+        val daTatSan: List<String>,
+        val khongCo: List<String>,
+        val loi: List<String>,
+        val nghiVan: List<String>,
+        val xacNhan: Boolean,
+        val khoiDongLai: Boolean,
+        val tivi: String,
+        val daDo: List<String> = emptyList(),
+    )
+
+    /** Trạng thái tắt/bật hiện tại của các gói cập nhật hãng (đọc thẳng từ tivi), không đổi gì. */
+    private fun docGoiOta(): Pair<Set<String>, Set<String>> {
+        val caiDat = sh("pm list packages").lines().map { it.trim().removePrefix("package:") }.filter { TEN_GOI.matches(it) }.toSet()
+        val tat = sh("pm list packages -d").lines().map { it.trim().removePrefix("package:") }.filter { TEN_GOI.matches(it) }.toSet()
+        return caiDat to tat
+    }
+
+    /** Hỏi chính tivi gói nào mở mục "Cập nhật hệ thống" (không đoán). Lệnh lỗi hoặc không có kết quả thì trả rỗng. */
+    private fun daDoGoiCapNhat(): List<String> {
+        val hanhDong = listOf("android.settings.SYSTEM_UPDATE_SETTINGS", "android.intent.action.SYSTEM_UPDATE_SETTINGS", "android.intent.action.UPDATE_FIRMWARE")
+        val mau = Regex("""^\s*([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z0-9_]+)+)/""")
+        return hanhDong.flatMap { a ->
+            runCatching { sh("cmd package query-activities --brief -a $a 2>/dev/null || pm query-activities --brief -a $a 2>/dev/null") }.getOrDefault("")
+                .lines().mapNotNull { mau.find(it)?.groupValues?.get(1) }
+        }.distinct()
+    }
+
+    fun chanCapNhat(sl: BanSaoLuu, bao: (String) -> Unit): KetQuaChanOta {
+        val (caiDat, tat0) = docGoiOta()
+        val homeNay = runCatching { homeHienTai().substringBefore('/') }.getOrDefault("")
+        // Gói tivi tự nhận xử lý "Cập nhật hệ thống": chỉ tắt khi tên khớp mẫu cập nhật VÀ qua các lớp bảo vệ
+        // (không phải gói lõi Android, không phải Home đang dùng, không phải Cài đặt).
+        val daDo = daDoGoiCapNhat().filter {
+            it in caiDat && it !in GOI_OTA_HANG && NGHI_OTA.containsMatchIn(it) &&
+                !zone.vgs.tvsach.dulieu.KeHoach.laGoiLoiAndroid(it) && it != homeNay &&
+                !it.startsWith("com.android.settings") && !it.contains("tv.settings")
+        }
+        val canTatDs = GOI_OTA_HANG + daDo
+        val nghiVan = caiDat.filter { it !in canTatDs && NGHI_OTA.containsMatchIn(it) }.sorted()
+        val khongCo = GOI_OTA_HANG.filter { it !in caiDat }
+        val daTatSan = canTatDs.filter { it in tat0 }
+        val daTat = mutableListOf<String>()
+        val loi = mutableListOf<String>()
+        var khoiDongLai = false
+        val pid0 = pidHeThong()
+        for (p in canTatDs.filter { it in caiDat && it !in tat0 }) {
+            bao(t("Tắt $p…", "Disabling $p…"))
+            // Ghi vào bản sao lưu TRƯỚC lệnh tắt: rớt mạng giữa chừng thì kịch bản khôi phục vẫn bật lại gói này.
+            val cuaApp = p !in sl.daTatTruoc
+            if (cuaApp) { sl.daTatBoiApp += p; luuSaoLuu(sl) }
+            val out = runCatching { sh("pm disable-user --user 0 $p") }.getOrElse { "lỗi: ${it.message}" }
+            val tatRoi = runCatching { sh("pm list packages -d").lines().any { it.trim() == "package:$p" } }.getOrDefault(false)
+            val pid1 = pidHeThong()
+            if (pid0 != null && pid1 != null && pid1 != pid0) {
+                // Dịch vụ hệ thống vừa khởi động lại sau khi tắt gói này: nghi phạm, bật lại ngay.
+                khoiDongLai = true
+                bao(t("Tivi vừa khởi động lại sau khi tắt $p, đang bật lại gói đó…", "The TV restarted after disabling $p, re-enabling it…"))
+                if (choTiviTraLoi(bao)) batLaiGoi(p, sl)
+                loi += "$p: " + t("tivi khởi động lại, đã bật lại gói này", "the TV restarted, the package was re-enabled")
+                break
+            }
+            if (tatRoi) daTat += p
+            else {
+                loi += "$p: " + out.trim().lines().lastOrNull().orEmpty().ifBlank { t("tivi không tắt gói này", "the TV did not disable it") }
+                if (cuaApp) { sl.daTatBoiApp -= p; luuSaoLuu(sl) }
+            }
+        }
+        // Đọc lại lần cuối từ tivi: gói nào cần tắt phải đang tắt, tivi vẫn trả lời, vẫn có Home.
+        val (_, tatSau) = docGoiOta()
+        val canTat = canTatDs.filter { it in caiDat }
+        val khoe = runCatching { sh("pm path android").contains("package:") && homeHienTai().isNotBlank() }.getOrDefault(false)
+        val xacNhan = !khoiDongLai && khoe && canTat.all { it in tatSau }
+        return KetQuaChanOta(daTat, daTatSan, khongCo, loi, nghiVan, xacNhan, khoiDongLai, if (khoe) "ok" else "khong-tra-loi", daDo)
+    }
+
+    /** Bật lại các gói cập nhật mà app đã tắt (không đụng gói hãng tắt sẵn). Trả danh sách lỗi. */
+    fun batLaiCapNhat(sl: BanSaoLuu, bao: (String) -> Unit): List<String> {
+        val (_, tat) = docGoiOta()
+        val loi = mutableListOf<String>()
+        tat.filter { it in sl.daTatBoiApp && (it in GOI_OTA_HANG || NGHI_OTA.containsMatchIn(it)) }.forEach { p ->
+            bao(t("Bật lại $p…", "Re-enabling $p…"))
+            if (!batLaiGoi(p, sl)) loi += p
+        }
+        return loi
+    }
+
     // ---------- Home sạch (launcher) ----------
 
     /**
