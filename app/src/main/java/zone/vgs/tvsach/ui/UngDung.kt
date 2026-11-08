@@ -76,17 +76,17 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// ---------------- Màu (gradient tím–hồng, nền xanh tím sáng hơn bản đầu) ----------------
+// ---------------- Màu (gradient xanh da trời–cam, nền xanh sáng; tên biến Tim/Hong giữ từ bản cũ) ----------------
 
-private val Tim = Color(0xFF9566FF)
-private val Hong = Color(0xFFFF6FB5)
+private val Tim = Color(0xFF1E96F0)
+private val Hong = Color(0xFFF07A12)
 private val Xanh = Color(0xFF3DDC84)
 private val Cam = Color(0xFFFFB84D)
-private val Nen = Color(0xFF1C1F3A)
-private val The1 = Color(0xFF282C4E)
-private val The2 = Color(0xFF343A64)
-private val ChuPhu = Color(0xFFCDD1EA)
-private val Vien = Color(0xFF4A5182)
+private val Nen = Color(0xFF1B4170)
+private val The1 = Color(0xFF245589)
+private val The2 = Color(0xFF2F69A3)
+private val ChuPhu = Color(0xFFDCEBFA)
+private val Vien = Color(0xFF5D93C8)
 private val Gradient = Brush.linearGradient(listOf(Tim, Hong))
 private val NenXam = Brush.linearGradient(listOf(The2, The2))
 

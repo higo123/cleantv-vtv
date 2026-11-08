@@ -53,7 +53,7 @@ object ThongBaoCapNhat {
             .setContentText(b.ghiChu.ifBlank { t("Chạm để cập nhật.", "Tap to update.") })
             .setStyle(NotificationCompat.BigTextStyle().bigText(
                 (if (b.ghiChu.isNotBlank()) b.ghiChu + "\n" else "") + t("Chạm để cập nhật.", "Tap to update.")))
-            .setColor(0xFF8B5CF6.toInt())
+            .setColor(0xFF1E96F0.toInt())
             .setContentIntent(mo)
             .setAutoCancel(true)
             .build()
