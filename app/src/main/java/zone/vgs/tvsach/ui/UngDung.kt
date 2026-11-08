@@ -76,17 +76,17 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// ---------------- Màu (gradient tím–hồng như logo) ----------------
+// ---------------- Màu (gradient tím–hồng, nền xanh tím sáng hơn bản đầu) ----------------
 
-private val Tim = Color(0xFF7C3AED)
-private val Hong = Color(0xFFEC4899)
-private val Xanh = Color(0xFF22C55E)
-private val Cam = Color(0xFFF59E0B)
-private val Nen = Color(0xFF0B0B10)
-private val The1 = Color(0xFF15151C)
-private val The2 = Color(0xFF1E1E28)
-private val ChuPhu = Color(0xFFA1A1B5)
-private val Vien = Color(0xFF2A2A36)
+private val Tim = Color(0xFF9566FF)
+private val Hong = Color(0xFFFF6FB5)
+private val Xanh = Color(0xFF3DDC84)
+private val Cam = Color(0xFFFFB84D)
+private val Nen = Color(0xFF1C1F3A)
+private val The1 = Color(0xFF282C4E)
+private val The2 = Color(0xFF343A64)
+private val ChuPhu = Color(0xFFCDD1EA)
+private val Vien = Color(0xFF4A5182)
 private val Gradient = Brush.linearGradient(listOf(Tim, Hong))
 private val NenXam = Brush.linearGradient(listOf(The2, The2))
 
@@ -314,7 +314,7 @@ private fun HopAppChiemCho(vm: PhienLamViec) {
 private fun ThanhTrangThai(vm: PhienLamViec) {
     val laLoi = vm.loi.isNotEmpty()
     Row(Modifier.fillMaxWidth().padding(12.dp).clip(RoundedCornerShape(14.dp))
-        .background(if (laLoi) Color(0xFF3A1320) else The2).padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+        .background(if (laLoi) Color(0xFF6B2840) else The2).padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
         if (laLoi) Icon(Icons.Rounded.ErrorOutline, null, tint = Hong)
         else CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
         Spacer(Modifier.width(12.dp))
@@ -531,7 +531,7 @@ private fun Radar(dangQuet: Boolean) {
 @Composable
 private fun ManKetNoi(vm: PhienLamViec) = Cuon {
     if (zone.vgs.tvsach.ManHinh.laTv) { KetNoiTiviNay(vm); return@Cuon }
-    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color(0xFF3A2A10)).clickable { vm.moHuongDan() }.padding(14.dp),
+    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color(0xFF64491C)).clickable { vm.moHuongDan() }.padding(14.dp),
         verticalAlignment = Alignment.CenterVertically) {
         Icon(Icons.Rounded.Warning, null, tint = Cam); Spacer(Modifier.width(10.dp))
         Column(Modifier.weight(1f)) {
@@ -631,7 +631,7 @@ private fun ManRemote(vm: PhienLamViec) = Cuon {
             "The remote works over Wi-Fi through debugging (ADB): next time open CleanTV → Clean a TV → Connect → Remote. If ADB was turned off, enable debugging on the TV again."))
         The {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                NutTron(Icons.Rounded.PowerSettingsNew, t("Nguồn", "Power"), 26, nen = Color(0xFF4A1414))
+                NutTron(Icons.Rounded.PowerSettingsNew, t("Nguồn", "Power"), 26, nen = Color(0xFF7A2A2A))
                 NutTron(Icons.Rounded.Home, "Home", 3)
                 NutTron(Icons.AutoMirrored.Rounded.ArrowBack, t("Quay lại", "Back"), 4)
                 NutTron(Icons.Rounded.Menu, "Menu", 82)
@@ -744,7 +744,7 @@ private fun ManThongTin(vm: PhienLamViec) = Cuon {
             }
         }
     }
-    if (vm.khongPhaiTivi) Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(Color(0xFF4A1414)).padding(12.dp),
+    if (vm.khongPhaiTivi) Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(Color(0xFF7A2A2A)).padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row {
             Icon(Icons.Rounded.Warning, null, tint = Color(0xFFFF8A80)); Spacer(Modifier.width(8.dp))
@@ -754,7 +754,7 @@ private fun ManThongTin(vm: PhienLamViec) = Cuon {
         Hang(t("Tôi chắc đây là tivi / hộp tivi / máy chiếu", "I am sure this is a TV / TV box / projector"),
             t("Chỉ bật nếu đúng là thiết bị xem tivi", "Only if it really is a TV device"), vm.xacNhanLaTivi) { vm.xacNhanLaTivi = it }
     }
-    if (vm.muiGioLech.isNotEmpty()) Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(Color(0xFF3A2A10)).padding(12.dp),
+    if (vm.muiGioLech.isNotEmpty()) Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(Color(0xFF64491C)).padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row {
             Icon(Icons.Rounded.Schedule, null, tint = Cam); Spacer(Modifier.width(8.dp))
@@ -763,17 +763,17 @@ private fun ManThongTin(vm: PhienLamViec) = Cuon {
         }
         NutPhu(t("Đặt giờ tivi theo điện thoại", "Use the phone's time zone on the TV"), Icons.Rounded.Schedule) { vm.datGioNhuDienThoai() }
     }
-    if (vm.laAndroidCu && !vm.laFireTv) Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(Color(0xFF3A2A10)).padding(12.dp)) {
+    if (vm.laAndroidCu && !vm.laFireTv) Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(Color(0xFF64491C)).padding(12.dp)) {
         Icon(Icons.Rounded.Warning, null, tint = Cam); Spacer(Modifier.width(8.dp))
         Phu(t("Máy này chạy Android ${vm.thongTin?.android}: CleanTV dọn được quảng cáo, theo dõi và app rác, nhưng KHÔNG cài được Home sạch (cần Android 8 trở lên).",
             "This device runs Android ${vm.thongTin?.android}: CleanTV can clean ads, tracking and junk apps but can NOT install the clean Home (needs Android 8 or later)."))
     }
-    if (vm.laFireTv) Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(Color(0xFF3A2A10)).padding(12.dp)) {
+    if (vm.laFireTv) Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(Color(0xFF64491C)).padding(12.dp)) {
         Icon(Icons.Rounded.Warning, null, tint = Cam); Spacer(Modifier.width(8.dp))
         Phu(t("Fire TV: CleanTV dọn được quảng cáo, theo dõi và app rác, nhưng KHÔNG thay được màn Home. Amazon khoá Home cho launcher của họ, không app nào thay được.",
             "Fire TV: CleanTV can clean ads, tracking and junk apps but can NOT replace Home. Amazon locks Home to its own launcher; no app can change it."))
     }
-    if (info.adbSecure == "0") Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(Color(0xFF3A2A10)).padding(12.dp)) {
+    if (info.adbSecure == "0") Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(Color(0xFF64491C)).padding(12.dp)) {
         Icon(Icons.Rounded.Warning, null, tint = Cam); Spacer(Modifier.width(8.dp))
         Phu(t("Tivi mở ADB không cần xác nhận: ai cùng mạng cũng điều khiển được. Nhớ tắt ADB khi xong.",
             "This TV accepts ADB without a prompt: anyone on the network can control it. Turn ADB off when done."), Color.White)
@@ -1757,7 +1757,7 @@ private fun TheBatTungApp(vm: PhienLamViec) {
 /** Thẻ nổi bật ở màn chính: việc BẮT BUỘC làm trên tivi trước khi dùng app. */
 @Composable
 private fun TheNhacNpt(vm: PhienLamViec) {
-    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(Color(0xFF2A1F0C))
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(Color(0xFF55401A))
         .border(1.5.dp, Cam.copy(alpha = 0.6f), RoundedCornerShape(20.dp)).padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Rounded.Warning, null, tint = Cam); Spacer(Modifier.width(8.dp))
